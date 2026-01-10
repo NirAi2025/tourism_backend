@@ -1,0 +1,17 @@
+const path = require("path");
+
+module.exports = {
+  // Used only by sequelize-cli
+  config: path.resolve("config/config.json"),
+
+  // Your actual models live here
+  modelsPath: path.resolve("src/models"),
+
+  migrationsPath: path.resolve("src/migrations"),
+
+  // 👇 THIS is why we add .sequelizerc
+  seedersPath: path.resolve("src/seeders"),
+
+  // Optional (future-proof)
+  migrationsPath: path.resolve("src/migrations"),
+};

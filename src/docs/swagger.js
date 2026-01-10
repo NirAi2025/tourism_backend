@@ -1,0 +1,44 @@
+import swaggerJsdoc from "swagger-jsdoc";
+
+const swaggerDefinition = {
+  openapi: "3.0.0",
+  info: {
+    title: "Tourism Backend API",
+    version: "1.0.0",
+    description: "API documentation for Tourism Backend",
+  },
+  servers: [
+    {
+      url: "http://localhost:3000/api",
+      description: "Local server",
+    },
+  ],
+
+  // 🔐 JWT AUTH CONFIG
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
+
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+};
+
+const options = {
+  swaggerDefinition,
+  apis: [
+    "./src/routes/**/*.js", 
+  ],
+};
+
+const swaggerSpec = swaggerJsdoc(options);
+
+export default swaggerSpec;
