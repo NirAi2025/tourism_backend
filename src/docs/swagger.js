@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const BASE_URL = process.env.API_URL || "http://localhost:3000";
+
 const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
@@ -12,12 +14,12 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: `${process.env.API_URL}:${process.env.PORT || 3000}/api`,
-      description: "Local server",
+      url: `${BASE_URL}/api`,
+      description: "API Server",
     },
   ],
 
-  // 🔐 JWT AUTH CONFIG
+  // JWT AUTH CONFIG
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -36,10 +38,8 @@ const swaggerDefinition = {
 };
 
 const options = {
-  swaggerDefinition,
-  apis: [
-    "./src/routes/**/*.js", 
-  ],
+  definition: swaggerDefinition,
+  apis: ["./src/routes/**/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
