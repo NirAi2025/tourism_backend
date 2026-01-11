@@ -17,29 +17,11 @@ const Role = sequelize.define(
       defaultValue: 1, // 1: active, 0: inactive
       comment: "1: active, 0: inactive",
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
-
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
-
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
   },
   {
-    timestamps: false,
+    timestamps: true,
     paranoid: true,
     underscored: true,
-    deletedAt: 'deleted_at',
     hooks: {
       beforeValidate: (role) => {
         // Auto-generate slug if not provided
