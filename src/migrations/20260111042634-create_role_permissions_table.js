@@ -4,7 +4,7 @@
 export async function up(queryInterface, Sequelize) {
   await queryInterface.createTable("role_permissions", {
     role_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
       primaryKey: true,
       references: {
@@ -16,7 +16,7 @@ export async function up(queryInterface, Sequelize) {
     },
 
     permission_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
       primaryKey: true,
       references: {
