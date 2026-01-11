@@ -17,7 +17,7 @@ export async function up(queryInterface, Sequelize) {
     },
 
     role_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
       primaryKey: true,
       references: {

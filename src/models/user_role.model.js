@@ -12,7 +12,7 @@ const UserRole = sequelize.define(
     },
 
     role_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false,
       primaryKey: true,
       comment: "FK to roles table",
