@@ -105,23 +105,22 @@ export const registrationService = async (payload = {}) => {
   const { firstName, lastName, email, country_code, phone, password } = payload;
 
   const transaction = await sequelize.transaction();
+  let verificationToken = null;
+  let committed = false;
 
   try {
-    // Get guide role
     const guideRole = await Role.findOne({
       where: { slug: "guide" },
       transaction,
-      lock: transaction.LOCK.UPDATE,
     });
 
     if (!guideRole) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        "Guide role not found",
+        "Guide role not found"
       );
     }
 
-    // Check if user exists
     let user = await User.findOne({
       where: { email },
       transaction,
@@ -129,7 +128,6 @@ export const registrationService = async (payload = {}) => {
 
     let isNewUser = false;
 
-    // Create user if not exists
     if (!user) {
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -144,18 +142,17 @@ export const registrationService = async (payload = {}) => {
           email_verified_at: null,
           completed_steps: 1,
         },
-        { transaction },
+        { transaction }
       );
 
       isNewUser = true;
     } else if (!user.email_verified_at) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        "This email is already registered but not verified.",
+        "This email is already registered but not verified."
       );
     }
 
-    // Check if already guide
     const alreadyGuide = await UserRole.findOne({
       where: {
         user_id: user.id,
@@ -167,36 +164,38 @@ export const registrationService = async (payload = {}) => {
     if (alreadyGuide) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        "User is already registered as a guide. Please login.",
+        "User is already registered as a guide. Please login."
       );
     }
 
-    // Assign guide role
     await UserRole.create(
       {
         user_id: user.id,
         role_id: guideRole.id,
       },
-      { transaction },
+      { transaction }
     );
 
     await transaction.commit();
+    committed = true;
 
     if (isNewUser) {
-      const token = await sendVerificationEmail(user);
+      verificationToken = await sendVerificationEmail(user);
     }
 
     return {
       id: user.id,
       email: user.email,
-      // message: "Registration successful. Please verify your email.",
-      token,
+      token: verificationToken,
     };
   } catch (error) {
-    await transaction.rollback();
+    if (!committed) {
+      await transaction.rollback();
+    }
     throw error;
   }
 };
+
 
 export const sendVerificationEmail = async (user) => {
   // Remove old unverified records
