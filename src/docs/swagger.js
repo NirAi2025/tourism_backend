@@ -66,7 +66,7 @@ const swaggerDefinition = {
             type: "string",
             example: "91",
           },
-          phone_number: {
+          phone: {
             type: "string",
             example: "0000000000",
           },
