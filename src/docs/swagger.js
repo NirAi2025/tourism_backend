@@ -62,6 +62,14 @@ const swaggerDefinition = {
             type: "string",
             example: "rahul@gmail.com",
           },
+          country_code: {
+            type: "string",
+            example: "91",
+          },
+          phone_number: {
+            type: "string",
+            example: "0000000000",
+          },
           password: {
             type: "string",
             example: "Password@123",
