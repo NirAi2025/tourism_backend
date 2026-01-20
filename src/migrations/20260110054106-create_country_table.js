@@ -15,6 +15,11 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
     },
 
+    slug: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+
     iso3: {
       type: Sequelize.STRING,
       allowNull: true,
@@ -88,6 +93,12 @@ export async function up(queryInterface, Sequelize) {
     },
 
     updated_at: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      defaultValue: null,
+    },
+
+    deleted_at: {
       type: Sequelize.DATE,
       allowNull: true,
       defaultValue: null,

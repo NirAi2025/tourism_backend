@@ -12,6 +12,7 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "API documentation for Tourism Backend",
   },
+
   servers: [
     {
       url: `${BASE_URL}/api`,
@@ -19,7 +20,6 @@ const swaggerDefinition = {
     },
   ],
 
-  // JWT AUTH CONFIG
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -28,8 +28,50 @@ const swaggerDefinition = {
         bearerFormat: "JWT",
       },
     },
+
+    // 🔹 Reusable Schemas
+    schemas: {
+      LoginRequest: {
+        type: "object",
+        required: ["email", "password"],
+        properties: {
+          email: {
+            type: "string",
+            example: "user@example.com",
+          },
+          password: {
+            type: "string",
+            example: "Password@123",
+          },
+        },
+      },
+
+      RegisterRequest: {
+        type: "object",
+        required: ["firstName", "email", "password"],
+        properties: {
+          firstName: {
+            type: "string",
+            example: "Rahul",
+          },
+          lastName: {
+            type: "string",
+            example: "Sharma",
+          },
+          email: {
+            type: "string",
+            example: "rahul@gmail.com",
+          },
+          password: {
+            type: "string",
+            example: "Password@123",
+          },
+        },
+      },
+    },
   },
 
+  // 🔐 Global JWT (will apply to all routes)
   security: [
     {
       bearerAuth: [],
@@ -39,6 +81,8 @@ const swaggerDefinition = {
 
 const options = {
   definition: swaggerDefinition,
+
+  // Auto-read swagger comments from routes
   apis: ["./src/routes/**/*.js"],
 };
 

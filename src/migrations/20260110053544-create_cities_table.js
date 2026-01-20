@@ -14,6 +14,10 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    slug: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
 
     state_id: {
       type: Sequelize.BIGINT,
@@ -86,6 +90,11 @@ export async function up(queryInterface, Sequelize) {
     },
 
     updated_at: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      defaultValue: null,
+    },
+    deleted_at: {
       type: Sequelize.DATE,
       allowNull: true,
       defaultValue: null,

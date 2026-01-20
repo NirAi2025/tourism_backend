@@ -79,6 +79,11 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
       defaultValue: null,
     },
+    deleted_at: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      defaultValue: null,
+    },
   });
 
   // 🔹 Indexes

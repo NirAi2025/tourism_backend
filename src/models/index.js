@@ -12,6 +12,17 @@ import CMS from "./cms.model.js";
 import BlogType from "./blogType.model.js";
 import Blog from "./blog.model.js";
 import Category from "./category.model.js";
+import Profile from "./profile.model.js";
+import GuideIdentity from "./guideIdentity.model.js";
+import GuideVerification from "./guideVerification.model.js";
+import GuideBankInfo from "./guideBankInfo.model.js";
+import GuideCertification from "./guideCertification.model.js";
+import GuideInsurance from "./guideInsurance.model.js";
+import GuideLanguage from "./guideLanguage.model.js";
+import GuideLicense from "./guideLicence.model.js";
+import GuidePayoutAccount from "./guidePayoutAccount.model.js";
+import GuidePublicProfile from "./guidePublicProfile.model.js";
+import UserEmailVerification from "./userEmailVerification.model.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -43,18 +54,44 @@ Blog.belongsTo(User, { foreignKey: "user_id" });
 Category.hasMany(Blog, { foreignKey: "category_id" });
 Category.belongsTo(Category, { foreignKey: "parent_id", as: "parentCategory" });
 
+Profile.belongsTo(User, { foreignKey: "user_id" });
+User.hasOne(Profile, { foreignKey: "user_id" });
+
+Profile.belongsTo(City, { foreignKey: "base_city_id" });
+
+GuideIdentity.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideIdentity, { foreignKey: "guide_id" });
+
+GuideLicense.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideLicense, { foreignKey: "guide_id" });
+
+GuideVerification.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideVerification, { foreignKey: "guide_id" });
+
+GuideBankInfo.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideBankInfo, { foreignKey: "guide_id" });
+
+UserEmailVerification.belongsTo(User, { foreignKey: "user_id" });
+User.hasOne(UserEmailVerification, { foreignKey: "user_id" });
+
 export {
   sequelize,
   BlogType,
   Blog,
   CMS,
+  GuideIdentity,
+  GuideLicense,
+  GuideInsurance,
   User,
   Role,
   UserRole,
   Country,
   State,
   City,
+  Category,
   Permission,
+  Profile,
   RolePermission,
   Setting,
+  UserEmailVerification
 };

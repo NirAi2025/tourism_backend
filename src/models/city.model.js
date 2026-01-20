@@ -12,6 +12,9 @@ const City = sequelize.define(
     name: {
       type: DataTypes.STRING,
     },
+    slug: {
+      type: DataTypes.STRING,
+    },
     state_id: {
       type: DataTypes.BIGINT,
       defaultValue: null,
@@ -58,6 +61,7 @@ const City = sequelize.define(
   {
     timestamps: true,
     underscored: true,
+    paranoid: true,
 
   }
 );

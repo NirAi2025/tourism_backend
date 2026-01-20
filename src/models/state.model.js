@@ -51,6 +51,7 @@ const State = sequelize.define(
   {
     timestamps: true,
     underscored: true,
+    paranoid: true,
   }
 );
 

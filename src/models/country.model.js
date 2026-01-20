@@ -12,6 +12,9 @@ const Country = sequelize.define(
     name: {
       type: DataTypes.STRING,
     },
+    slug: {
+        type: DataTypes.STRING,
+    },
     iso3: {
         type: DataTypes.STRING,
     },
@@ -57,6 +60,7 @@ const Country = sequelize.define(
   {
     timestamps: true,
     underscored: true,
+    paranoid: true,
   }
 );
 

@@ -11,6 +11,7 @@ import {
   createOrUpdateBlogService,
   deleteBlogService,
 } from "../../services/blog/blog.service.js";
+import { BLOG_UPLOAD_PATH } from "../../config/fileUploadPath.js";
 
 export const getAllBlogTypes = async (req, res) => {
     try {
@@ -126,7 +127,7 @@ export const createOrUpdateBlog = async (req, res) => {
         // Handle image upload
         let featureImage = '';
         if (req.files && req.files.image) {
-            const fImage = await fileUploaderSingle("./src/public/uploads/blogs/", req.files.image);
+            const fImage = await fileUploaderSingle(BLOG_UPLOAD_PATH, req.files.image);
             featureImage = fImage.newfileName;
         }
         req.body.featured_image = featureImage;

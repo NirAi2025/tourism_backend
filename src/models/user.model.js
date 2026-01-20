@@ -21,6 +21,10 @@ const User = sequelize.define(
     phone: {
       type: DataTypes.STRING,
     },
+    whatsapp_number: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
     password: {
       type: DataTypes.STRING,
     },
@@ -38,6 +42,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       defaultValue: null,
     },
+    preferred_language: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
     fcm_token: {
       type: DataTypes.TEXT("long"),
       defaultValue: null,
@@ -49,6 +57,11 @@ const User = sequelize.define(
     },
     provider_id: {
       type: DataTypes.STRING,
+    },
+    completed_steps: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: "Number of completed steps in guide onboarding",
     },
     status: {
       type: DataTypes.TINYINT,

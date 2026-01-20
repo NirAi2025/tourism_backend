@@ -17,11 +17,11 @@ export const loginSchema = Joi.object({
       'any.required': 'Password is required',
     }),
 
-  type: Joi.number()
-    .valid(1, 2)  // 1 for admin, 2 for user
-    .required()
-    .messages({
-      'any.only': 'Invalid login type',
-      'any.required': 'Login type is required',
-    }),
+  // type: Joi.number()
+  //   .valid(1, 2)  // 1 for admin, 2 for user
+  //   .required()
+  //   .messages({
+  //     'any.only': 'Invalid login type',
+  //     'any.required': 'Login type is required',
+  //   }),
 });
