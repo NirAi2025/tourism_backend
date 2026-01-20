@@ -183,13 +183,14 @@ export const registrationService = async (payload = {}) => {
     await transaction.commit();
 
     if (isNewUser) {
-      await sendVerificationEmail(user);
+      const token = await sendVerificationEmail(user);
     }
 
     return {
       id: user.id,
       email: user.email,
-      message: "Registration successful. Please verify your email.",
+      // message: "Registration successful. Please verify your email.",
+      token,
     };
   } catch (error) {
     await transaction.rollback();
@@ -220,7 +221,8 @@ export const sendVerificationEmail = async (user) => {
   });
 
   // Build verification URL
-  const verificationUrl = `${process.env.API_URL}/auth/verify-email?token=${token}`;
+  // const verificationUrl = `${process.env.API_URL}/auth/verify-email?token=${token}`;
+  return token;
 };
 
 export const resendVerificationEmail = async (user) => {
