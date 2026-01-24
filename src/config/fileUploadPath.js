@@ -1,25 +1,37 @@
 import path from "path";
+import { fileURLToPath } from "url";
 
-export const IDENTITY_DOC_UPLOAD_PATH = path.resolve(
-  process.cwd(),
-  "src/public/uploads/identity-doc"
+// Needed for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Base path: /var/www/html/tourism_backend/src/public/uploads
+const UPLOAD_BASE_PATH = path.resolve(
+  __dirname,
+  "../public/uploads"
 );
 
-export const BLOG_UPLOAD_PATH = path.resolve(
-  process.cwd(),
-  "src/public/uploads/blogs"
+export const IDENTITY_DOC_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "identity-doc"
 );
 
-export const GUIDE_LICENCE_UPLOAD_PATH = path.resolve(
-  process.cwd(),
-  "src/public/uploads/guide-licence"
+export const BLOG_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "blogs"
 );
 
-export const INSURANCE_DOC_UPLOAD_PATH = path.resolve(
-  process.cwd(),
-  "src/public/uploads/insurance-doc"
+export const GUIDE_LICENCE_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "guide-licence"
 );
-export const Profile_IMG_UPLOAD_PATH = path.resolve(
-  process.cwd(),
-  "src/public/uploads/profile"
+
+export const INSURANCE_DOC_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "insurance-doc"
+);
+
+export const PROFILE_IMG_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "profile"
 );

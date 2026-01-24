@@ -5,6 +5,7 @@ export const fileUploaderSingle = async (path, file) => {
     }
     let newfileName = Date.now().toString() + file.name;
     let uploadPath = path + newfileName;
+    console.log("FINAL UPLOAD PATH:", uploadPath);
     await file.mv(uploadPath);
     return { originalFileName: file.name, newfileName };
 };
