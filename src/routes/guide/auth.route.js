@@ -15,7 +15,7 @@ import {
 import { validate } from "../../middlewares/validate.middleware.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
 
-import { registrationFirstStepSchema } from "../../validations/registrationFirstStep.validation.js";
+import { registrationSchema } from "../../validations/registrationFirstStep.validation.js";
 import { registrationSecondStepSchema } from "../../validations/registrationSecondStep.validation.js";
 
 const router = express.Router();
@@ -53,7 +53,7 @@ const router = express.Router();
  *       409: { description: User already exists }
  *       500: { description: Server error }
  */
-router.post("/register", register);
+router.post("/register", validate(registrationSchema), register);
 /**
  * @swagger
  * /guide/verify-email/{token}:

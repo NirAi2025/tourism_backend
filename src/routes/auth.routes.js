@@ -9,7 +9,6 @@ import { validate } from "../middlewares/validate.middleware.js";
 import { authenticateToken } from "../middlewares/generalAuth.middleware.js";
 
 import { loginSchema } from "../validations/auth.validation.js";
-import { registrationFirstStepSchema } from "../validations/registrationFirstStep.validation.js";
 import { registrationSecondStepSchema } from "../validations/registrationSecondStep.validation.js";
 
 const router = express.Router();
@@ -61,6 +60,6 @@ router.post("/login", validate(loginSchema), login);
  *       409:
  *         description: User already exists
  */
-router.post("/register", validate(registrationFirstStepSchema), register);
+router.post("/register", register);
 
 export default router;
