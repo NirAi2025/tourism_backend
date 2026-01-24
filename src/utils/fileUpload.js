@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from "fs";
 export const fileUploaderSingle = async (path, file) => {
     if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true });
+        mkdirSync("/" + path, { recursive: true });
     }
     let newfileName = Date.now().toString() + file.name;
     let uploadPath = path + newfileName;
