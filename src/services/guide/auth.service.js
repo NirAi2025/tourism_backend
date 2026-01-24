@@ -344,6 +344,15 @@ export const createGuideIdentityService = async (payload = {}) => {
   const { guideId, documents } = payload;
   const transaction = await sequelize.transaction();
   try {
+    // remove existing documents by document category
+    const categories = documents.map((doc) => doc.document_category);
+    await GuideIdentity.destroy({
+      where: {
+        guide_id: guideId,
+        document_category: { [Op.in]: categories },
+      },
+      transaction,
+    });
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       document_category: doc.document_category,
