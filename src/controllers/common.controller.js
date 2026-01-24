@@ -4,7 +4,8 @@ import {
     countryCurrencyService,
     getAllCountriesService,
     getStatesByCountryService,
-    getCitiesByStateService
+    getCitiesByStateService,
+    languagesService
 } from "../services/common.service.js";
 
 export const getCountryCurrency = async (req, res) => {
@@ -82,3 +83,21 @@ export const getCitiesByState = async (req, res) => {
     });
   }
 };
+export const languages = async (req, res) => {
+  try {
+    const data = await languagesService();
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Languages fetched successfully",
+      data,
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || StatusCodes.BAD_REQUEST;
+
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || constants.INTERNAL_SERVER_ERROR,
+    });
+  }
+}

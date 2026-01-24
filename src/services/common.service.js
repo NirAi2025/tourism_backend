@@ -5,7 +5,8 @@ import sequelize from "../config/database.js";
 import {
     City,
     Country,
-    State
+    State,
+    Language
 } from "../models/index.js";
 
 export const countryCurrencyService = async () => {
@@ -55,3 +56,16 @@ export const getCitiesByStateService = async (stateId) => {
 
   return cities;
 };
+
+export const languagesService = async () => {
+  const languages = await Language.findAll({
+    attributes: ['id', 'name', 'code'],
+    raw: true,
+  });
+
+  if (!languages) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "No languages found");
+  }
+
+  return languages;
+}

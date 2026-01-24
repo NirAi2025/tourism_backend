@@ -5,6 +5,7 @@ import UserRole from "./user_role.model.js";
 import Country from "./country.model.js";
 import State from "./state.model.js";
 import City from "./city.model.js";
+import Language from "./language.model.js";
 import Permission from "./permission.model.js";
 import RolePermission from "./role_permission.model.js";
 import Setting from "./setting.model.js";
@@ -95,6 +96,7 @@ export {
   State,
   City,
   Category,
+  Language,
   Permission,
   Profile,
   RolePermission,

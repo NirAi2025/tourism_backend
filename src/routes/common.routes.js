@@ -4,10 +4,38 @@ import {
   getAllCountries,
   getStatesByCountry,
   getCitiesByState,
+  languages,
 } from "../controllers/common.controller.js";
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /languages:
+ *   get:
+ *     summary: Get all languages
+ *     tags: [Common]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Languages list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: English
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/languages", languages);
 /**
  * @swagger
  * /country-currency:
