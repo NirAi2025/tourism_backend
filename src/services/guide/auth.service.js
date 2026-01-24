@@ -341,18 +341,38 @@ export const personalProfileInfoService = async (payload = {}) => {
 
 // step 2: guide identity documents
 export const createGuideIdentityService = async (payload = {}) => {
-  const { guideId, documents } = payload;
+  const { guideId, documents = [] } = payload;
+
+  if (!guideId) {
+    throw new Error("guideId is required");
+  }
+
+  if (!Array.isArray(documents) || documents.length === 0) {
+    throw new Error("documents are required");
+  }
+
   const transaction = await sequelize.transaction();
+
   try {
-    // remove existing documents by document category
-    const categories = documents.map((doc) => doc.document_category);
-    await GuideIdentity.destroy({
-      where: {
-        guide_id: guideId,
-        document_category: { [Op.in]: categories },
-      },
-      transaction,
-    });
+    // 1️⃣ Extract document categories from request
+    const categories = documents
+      .map((doc) => doc.document_category)
+      .filter(Boolean);
+
+    // 2️⃣ Delete existing documents for same guide + categories
+    if (categories.length > 0) {
+      await GuideIdentity.destroy({
+        where: {
+          guide_id: guideId,
+          document_category: {
+            [Op.in]: categories,
+          },
+        },
+        transaction,
+      });
+    }
+
+    // 3️⃣ Prepare insert rows
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       document_category: doc.document_category,
@@ -362,14 +382,18 @@ export const createGuideIdentityService = async (payload = {}) => {
       verification_status: 0,
     }));
 
-    await GuideIdentity.bulkCreate(rows);
+    // 4️⃣ Insert new documents (IMPORTANT: pass transaction)
+    await GuideIdentity.bulkCreate(rows, { transaction });
+
+    // 5️⃣ Update completed steps
     await User.update(
-      {
-        completed_steps: 2,
-      },
-      { where: { id: guideId }, transaction },
+      { completed_steps: 2 },
+      { where: { id: guideId }, transaction }
     );
+
+    // 6️⃣ Commit transaction
     await transaction.commit();
+
     return {
       message: "Identity documents submitted successfully",
       completed_steps: 2,
