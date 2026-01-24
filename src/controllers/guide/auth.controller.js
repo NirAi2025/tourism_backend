@@ -14,7 +14,7 @@ import {
 import { fileUploaderSingle } from "../../utils/fileUpload.js";
 import {
   IDENTITY_DOC_UPLOAD_PATH,
-  Profile_IMG_UPLOAD_PATH,
+  PROFILE_IMG_UPLOAD_PATH,
 } from "../../config/fileUploadPath.js";
 
 export const register = async (req, res) => {
@@ -316,7 +316,7 @@ export const guidePublicInfo = async (req, res) => {
     }
 
     const uploadedPhoto = await fileUploaderSingle(
-      Profile_IMG_UPLOAD_PATH,
+      PROFILE_IMG_UPLOAD_PATH,
       req.files.profile_photo,
     );
 
