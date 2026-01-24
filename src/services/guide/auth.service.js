@@ -126,7 +126,6 @@ export const registrationService = async (payload = {}) => {
   });
 };
 
-
 export const sendVerificationEmail = async (user) => {
   // Remove old unverified records
   await UserEmailVerification.destroy({
@@ -388,7 +387,7 @@ export const createGuideIdentityService = async (payload = {}) => {
     // 5️⃣ Update completed steps
     await User.update(
       { completed_steps: 2 },
-      { where: { id: guideId }, transaction }
+      { where: { id: guideId }, transaction },
     );
 
     // 6️⃣ Commit transaction
@@ -410,6 +409,25 @@ export const createGuideLicenseService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
 
   try {
+    // 1️⃣ Extract license types from request
+    const licenseTypes = documents
+      .map((doc) => doc.license_type)
+      .filter(Boolean);
+
+    // 2️⃣ Delete existing licenses for same guide + license types
+    if (licenseTypes.length > 0) {
+      await GuideLicense.destroy({
+        where: {
+          guide_id: guideId,
+          license_type: {
+            [Op.in]: licenseTypes,
+          },
+        },
+        transaction,
+      });
+    }
+
+    // 3️⃣ Prepare new rows
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       license_type: doc.license_type,
@@ -417,13 +435,16 @@ export const createGuideLicenseService = async (payload = {}) => {
       verification_status: 0,
     }));
 
+    // 4️⃣ Insert new licenses
     await GuideLicense.bulkCreate(rows, { transaction });
 
+    // 5️⃣ Update completed step
     await User.update(
       { completed_steps: 3 },
       { where: { id: guideId }, transaction },
     );
 
+    // 6️⃣ Commit transaction
     await transaction.commit();
 
     return {
@@ -489,13 +510,17 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
     guideId,
     language_ids = [],
     primary_language_id,
-    certification_type = "First Aid / Safety",
+    certification_type = "first_aid", 
     certification_document,
   } = payload;
-  console.log("payload", payload);
-  
+
+  if (!guideId) {
+    throw new Error("guideId is required");
+  }
+
   return sequelize.transaction(async (transaction) => {
-    if (language_ids.length > 0) {
+    if (Array.isArray(language_ids) && language_ids.length > 0) {
+      // delete existing languages
       await GuideLanguage.destroy({
         where: { guide_id: guideId },
         transaction,
@@ -504,26 +529,34 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
       const languageRows = language_ids.map((languageId) => ({
         guide_id: guideId,
         language_id: languageId,
-        is_primary: primary_language_id == languageId,
+        is_primary: Number(languageId) === Number(primary_language_id),
       }));
 
       await GuideLanguage.bulkCreate(languageRows, { transaction });
     }
-
     if (certification_document) {
+      // delete existing certification of same type
+      await GuideCertification.destroy({
+        where: {
+          guide_id: guideId,
+          certification_type,
+        },
+        transaction,
+      });
+
+      // insert new certification
       await GuideCertification.create(
         {
           guide_id: guideId,
           certification_type,
           certificate_file: certification_document,
         },
-        { transaction },
+        { transaction }
       );
     }
-
     await User.update(
       { completed_steps: 5 },
-      { where: { id: guideId }, transaction },
+      { where: { id: guideId }, transaction }
     );
 
     return {
@@ -645,4 +678,3 @@ export const guidePublicInfoService = async (payload = {}) => {
     };
   });
 };
-
