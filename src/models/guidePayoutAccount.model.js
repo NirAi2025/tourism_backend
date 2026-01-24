@@ -41,7 +41,7 @@ const GuidePayoutAccount = sequelize.define(
     },
 
     payout_method: {
-      type: DataTypes.ENUM("bank_transfer", "paypal"),
+      type: DataTypes.ENUM("bank_transfer", "paypal", "stripe", "other"),
       allowNull: true,
     },
 

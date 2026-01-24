@@ -19,3 +19,7 @@ export const INSURANCE_DOC_UPLOAD_PATH = path.resolve(
   process.cwd(),
   "src/public/uploads/insurance-doc"
 );
+export const Profile_IMG_UPLOAD_PATH = path.resolve(
+  process.cwd(),
+  "src/public/uploads/profile"
+);

@@ -15,8 +15,8 @@ const GuideLanguage = sequelize.define(
       allowNull: true,
     },
 
-    language: {
-      type: DataTypes.STRING,
+    language_id: {
+      type: DataTypes.BIGINT,
       allowNull: true,
     },
 

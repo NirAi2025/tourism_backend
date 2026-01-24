@@ -45,7 +45,7 @@ export async function up(queryInterface, Sequelize) {
     },
 
     payout_method: {
-      type: Sequelize.ENUM("bank_transfer", "paypal"),
+      type: Sequelize.ENUM("bank_transfer", "paypal", "stripe", "other"),
       allowNull: true,
     },
 

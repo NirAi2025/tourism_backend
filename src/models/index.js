@@ -74,6 +74,12 @@ User.hasMany(GuideBankInfo, { foreignKey: "guide_id" });
 UserEmailVerification.belongsTo(User, { foreignKey: "user_id" });
 User.hasOne(UserEmailVerification, { foreignKey: "user_id" });
 
+GuideLanguage.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideLanguage, { foreignKey: "guide_id" });
+
+GuideCertification.belongsTo(User, { foreignKey: "guide_id" });
+User.hasMany(GuideCertification, { foreignKey: "guide_id" });
+
 export {
   sequelize,
   BlogType,
@@ -93,5 +99,9 @@ export {
   Profile,
   RolePermission,
   Setting,
-  UserEmailVerification
+  UserEmailVerification,
+  GuidePayoutAccount,
+  GuidePublicProfile,
+  GuideCertification,
+  GuideLanguage
 };

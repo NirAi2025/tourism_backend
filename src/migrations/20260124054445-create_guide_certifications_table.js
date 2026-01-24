@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable("guide_public_profiles", {
+  await queryInterface.createTable("guide_certifications", {
     id: {
       type: Sequelize.BIGINT,
       autoIncrement: true,
@@ -11,63 +11,45 @@ export async function up(queryInterface, Sequelize) {
 
     guide_id: {
       type: Sequelize.BIGINT,
-      allowNull: true,
+      allowNull: false,
       references: { model: "users", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
+      onDelete: "CASCADE",
     },
 
-    bio: {
-      type: Sequelize.TEXT,
-      allowNull: true,
+    certification_name: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
 
-    profile_photo: {
+    issuing_organization: {
       type: Sequelize.STRING,
       allowNull: true,
     },
 
-    cover_photo: {
-      type: Sequelize.STRING,
+    issue_date: {
+      type: Sequelize.DATE,
       allowNull: true,
     },
 
-    google_review_url: {
-      type: Sequelize.STRING,
+    expiration_date: {
+      type: Sequelize.DATE,
       allowNull: true,
     },
-    tripadvisor_url: {
+    certificate_file: {
       type: Sequelize.STRING,
       allowNull: true,
-    },
-
-    instagram_url: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
-
-    linkedin_url: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
-
-    is_profile_verified: {
-      type: Sequelize.BOOLEAN,
-      defaultValue: true,
     },
 
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.fn("NOW"),
     },
-
     updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.fn("NOW"),
     },
   });
 }
-
-export async function down(queryInterface) {
-  await queryInterface.dropTable("guide_public_profiles");
+export async function down(queryInterface, Sequelize) {
+  await queryInterface.dropTable("guide_certifications");
 }
