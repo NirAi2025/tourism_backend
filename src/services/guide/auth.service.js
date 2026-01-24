@@ -29,7 +29,7 @@ export const registrationService = async (payload = {}) => {
     phone,
     password,
     whatsAppNumber,
-    preferredLanguage,
+    languageId,
     dob,
     nationality,
     countryOfOperation,
@@ -76,7 +76,7 @@ export const registrationService = async (payload = {}) => {
         auth_provider: 1,
         completed_steps: 1,
         whatsapp_number: whatsAppNumber ?? null,
-        preferred_language: preferredLanguage ?? null,
+        language_id: languageId ?? null,
       },
       { transaction },
     );

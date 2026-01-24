@@ -42,7 +42,7 @@ const router = express.Router();
  *               phone: { type: string, example: "9876543210" }
  *               password: { type: string, format: password, example: "Password@123" }
  *               whatsAppNumber: { type: string, example: "9876543210" }
- *               preferredLanguage: { type: string, example: English }
+ *               languageId: { type: integer, example: 1 }
  *               dob: { type: string, format: date, example: "1995-08-15" }
  *               nationality: { type: string, example: Indian }
  *               countryOfOperation: { type: integer, example: 101 }
