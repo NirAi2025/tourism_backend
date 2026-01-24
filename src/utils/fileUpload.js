@@ -1,15 +1,30 @@
 import { existsSync, mkdirSync } from "fs";
-export const fileUploaderSingle = async (path, file) => {
-  if (!existsSync(path)) {
-    mkdirSync(path, { recursive: true });
+import path from "path";
+
+export const fileUploaderSingle = async (uploadDir, file) => {
+  // Ensure directory exists
+  if (!existsSync(uploadDir)) {
+    mkdirSync(uploadDir, { recursive: true });
   }
+
+  // Sanitize filename
   const safeName = file.name.replace(/\s+/g, "_");
   const newfileName = `${Date.now()}-${safeName}`;
-  const uploadPath = path.join(path, newfileName);
-  console.log("UPLOAD DIR:", path);
+
+  // Correct path joining
+  const uploadPath = path.join(uploadDir, newfileName);
+
+  // Debug logs
+  console.log("UPLOAD DIR:", uploadDir);
   console.log("FINAL UPLOAD PATH:", uploadPath);
+
+  // Move file
   await file.mv(uploadPath);
-  return { originalFileName: file.name, newfileName };
+
+  return {
+    originalFileName: file.name,
+    newfileName,
+  };
 };
 export const fileUploaderMultiple = async (path, file) => {
   if (!existsSync(path)) {
