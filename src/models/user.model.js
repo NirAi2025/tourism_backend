@@ -42,8 +42,8 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       defaultValue: null,
     },
-    preferred_language: {
-      type: DataTypes.STRING,
+    language_id: {
+      type: DataTypes.BIGINT,
       defaultValue: null,
     },
     fcm_token: {
