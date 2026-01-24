@@ -49,6 +49,7 @@ build/
 # ============================
 public/uploads/
 public/temp/
+src/public/uploads/
 
 # ============================
 # Testing
