@@ -11,6 +11,7 @@ import {
   saveGuidePayoutInfo,
   guidePublicInfo,
   guideLanguagesAndSkills,
+  myProfile
 } from "../../controllers/guide/auth.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
@@ -262,5 +263,23 @@ router.post("/payout-info", authenticateToken, saveGuidePayoutInfo);
  *       500: { description: Server error }
  */
 router.post("/public-info", authenticateToken, guidePublicInfo);
+/**
+ * @swagger
+ * /guide/my-profile:
+ *   get:
+ *     summary: Get guide profile details
+ *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200: 
+ *         description: Guide profile fetched successfully
+ *       401: 
+ *         description: Unauthorized
+ *       500: 
+ *         description: Server error
+ */
+router.get("/my-profile", authenticateToken, myProfile);
+
 
 export default router;

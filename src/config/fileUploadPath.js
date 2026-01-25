@@ -11,6 +11,8 @@ const UPLOAD_BASE_PATH = path.resolve(
   "../public/uploads"
 );
 
+export const BASE_FILE_URL = `${process.env.API_URL}/public/uploads`;
+
 export const IDENTITY_DOC_UPLOAD_PATH = path.join(
   UPLOAD_BASE_PATH,
   "identity-doc"
@@ -35,3 +37,13 @@ export const PROFILE_IMG_UPLOAD_PATH = path.join(
   UPLOAD_BASE_PATH,
   "profile"
 );
+
+export const withFileUrl = (fileName, folder) => {
+  if (!fileName) return null;
+  if (fileName.startsWith("http")) return fileName;
+
+  return `${BASE_FILE_URL}/${folder}/${fileName}`;
+};
+
+
+

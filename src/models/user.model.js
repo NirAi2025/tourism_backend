@@ -73,6 +73,11 @@ const User = sequelize.define(
     timestamps: true,
     paranoid: true,
     underscored: true,
+    // defaultScope: {
+    //   attributes: {
+    //     exclude: ["createdAt", "updatedAt", "deletedAt"],
+    //   },
+    // },
     indexes: [
       {
         unique: true,

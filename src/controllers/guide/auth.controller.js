@@ -10,6 +10,7 @@ import {
   guidePayoutInfoService,
   guidePublicInfoService,
   guideLanguageAndSkillsService,
+  myProfileService
 } from "../../services/guide/auth.service.js";
 import { fileUploaderSingle } from "../../utils/fileUpload.js";
 import {
@@ -403,5 +404,26 @@ export const guideLanguagesAndSkills = async (req, res) => {
       success: false,
       message: error.message || "Failed to save languages and skills",
     });
+  }
+};
+
+export const myProfile = async (req, res) => {
+  try {
+    const guideId = req.user.id;
+
+    // For simplicity, assuming a service function fetches all profile data
+    const profileData = await myProfileService(guideId);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: profileData,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || "Failed to fetch profile data",
+      });
   }
 };

@@ -5,6 +5,9 @@ import crypto from "crypto";
 import ApiError from "../../utils/ApiError.js";
 import sequelize from "../../config/database.js";
 import {
+  withFileUrl
+} from "../../config/fileUploadPath.js";
+import {
   GuideIdentity,
   GuideLicense,
   GuideInsurance,
@@ -20,6 +23,7 @@ import {
 } from "../../models/index.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
 
+// --------------------------------- signup / registration ---------------------------------
 export const registrationService = async (payload = {}) => {
   const {
     firstName,
@@ -677,4 +681,59 @@ export const guidePublicInfoService = async (payload = {}) => {
       completed_steps: 7,
     };
   });
+};
+
+// --------------------------------- signup / registration ---------------------------------
+
+export const myProfileService = async (guideId) => {
+  const guideProfile = await User.findOne({
+    where: { id: guideId },
+    attributes: { exclude: ["password"] },
+    include: [
+      { model: Profile, as: "profile" },
+      { model: GuideIdentity, as: "guide_identities" },
+      { model: GuideLicense, as: "guide_licenses" },
+      { model: GuideInsurance, as: "guide_insurances" },
+      { model: GuidePayoutAccount, as: "guide_payout_accounts" },
+      { model: GuidePublicProfile, as: "guide_public_profile" },
+      { model: GuideLanguage, as: "guide_languages" },
+      { model: GuideCertification, as: "guide_certifications" },
+    ],
+  });
+
+  if (!guideProfile) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Guide profile not found");
+  }
+
+  const data = guideProfile.toJSON();
+  
+  if (data.guide_public_profile?.profile_photo) {
+    data.guide_public_profile.profile_photo = withFileUrl(
+      data.guide_public_profile.profile_photo,
+      "profile"
+    );
+  }
+  data.guide_identities?.forEach((doc) => {
+    doc.document_file = withFileUrl(doc.document_file, "identity-doc");
+  });
+  data.guide_licenses?.forEach((license) => {
+    license.document_file = withFileUrl(
+      license.document_file,
+      "identity-doc"
+    );
+  });
+  data.guide_insurances?.forEach((insurance) => {
+    insurance.insurance_document = withFileUrl(
+      insurance.insurance_document,
+      "identity-doc"
+    );
+  });
+  data.guide_certifications?.forEach((cert) => {
+    cert.certificate_file = withFileUrl(
+      cert.certificate_file,
+      "identity-doc"
+    );
+  });
+
+  return data;
 };

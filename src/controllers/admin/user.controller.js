@@ -1,6 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 import constants from "../../config/constants.js";
-import { getAllUserService } from "../../services/user/user.service.js";
+import { 
+  getAllUserService,
+  userDetailsByIdService 
+} from "../../services/user/user.service.js";
 
 export const users = async (req, res) => {
   try {
@@ -34,5 +37,32 @@ export const users = async (req, res) => {
       success: false,
       message: error.message || constants.INTERNAL_SERVER_ERROR,
     });
+  }
+};
+
+export const userDetailsById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userDetailsByIdService(id);
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || constants.INTERNAL_SERVER_ERROR,
+      });
   }
 };
