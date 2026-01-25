@@ -77,8 +77,8 @@ export const userDetailsByIdService = async (userId) => {
       { model: Profile, as: "profile" },
       { model: GuideIdentity, as: "guide_identities" },
       { model: GuideLicense, as: "guide_licenses" },
-      { model: GuideInsurance, as: "guide_insurances" },
-      { model: GuidePayoutAccount, as: "guide_payout_accounts" },
+      { model: GuideInsurance, as: "guide_insurance" },
+      { model: GuidePayoutAccount, as: "guide_payout_account" },
       { model: GuidePublicProfile, as: "guide_public_profile" },
       { model: GuideLanguage, as: "guide_languages" },
       { model: GuideCertification, as: "guide_certifications" },
@@ -105,10 +105,12 @@ export const userDetailsByIdService = async (userId) => {
   data.guide_licenses?.forEach(l =>
     l.document_file = withFileUrl(l.document_file, "identity-doc")
   );
-
-  data.guide_insurances?.forEach(i =>
-    i.insurance_document = withFileUrl(i.insurance_document, "identity-doc")
-  );
+  if (data.guide_insurance?.insurance_document) {
+    data.guide_insurance.insurance_document = withFileUrl(
+      data.guide_insurance.insurance_document,
+      "identity-doc"
+    );
+  }
 
   data.guide_certifications?.forEach(c =>
     c.certificate_file = withFileUrl(c.certificate_file, "identity-doc")
