@@ -17,53 +17,22 @@ const router = express.Router();
  *     tags: [Common]
  *     security: []
  *     responses:
- *       200:
- *         description: Languages list
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   name:
- *                     type: string
- *                     example: English
- *       500:
- *         description: Internal server error
+ *       200: { description: Languages list }
+ *       500: { description: Server error }
  */
 router.get("/languages", languages);
 /**
  * @swagger
  * /country-currency:
  *   get:
- *     summary: Get all countries with their currencies
+ *     summary: Get countries with currencies
  *     tags: [Common]
  *     security: []
  *     responses:
- *       200:
- *         description: List of countries and their currencies
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   name:
- *                     type: string
- *                     example: India
- *                   currency:
- *                     type: string
- *                     example: INR
- *       500:
- *         description: Server error
+ *       200: { description: Countries and currencies list }
+ *       500: { description: Server error }
  */
 router.get("/country-currency", getCountryCurrency);
-
 /**
  * @swagger
  * /countries:
@@ -72,23 +41,8 @@ router.get("/country-currency", getCountryCurrency);
  *     tags: [Common]
  *     security: []
  *     responses:
- *       200:
- *         description: List of countries
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   name:
- *                     type: string
- *                     example: India
- *       500:
- *         description: Server error
+ *       200: { description: Countries list }
+ *       500: { description: Server error }
  */
 router.get("/countries", getAllCountries);
 /**
@@ -102,27 +56,10 @@ router.get("/countries", getAllCountries);
  *       - in: path
  *         name: countryId
  *         required: true
- *         schema:
- *           type: integer
- *         description: Country ID
+ *         schema: { type: integer }
  *     responses:
- *       200:
- *         description: List of states
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 10
- *                   name:
- *                     type: string
- *                     example: Karnataka
- *       404:
- *         description: Country not found
+ *       200: { description: States list }
+ *       404: { description: Country not found }
  */
 router.get("/states/:countryId", getStatesByCountry);
 /**
@@ -131,32 +68,15 @@ router.get("/states/:countryId", getStatesByCountry);
  *   get:
  *     summary: Get cities by state ID
  *     tags: [Common]
- *      security: []
+ *     security: []
  *     parameters:
  *       - in: path
  *         name: stateId
  *         required: true
- *         schema:
- *           type: integer
- *         description: State ID
+ *         schema: { type: integer }
  *     responses:
- *       200:
- *         description: List of cities
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 101
- *                   name:
- *                     type: string
- *                     example: Bengaluru
- *       404:
- *         description: State not found
+ *       200: { description: Cities list }
+ *       404: { description: Cities not found }
  */
 router.get("/cities/:stateId", getCitiesByState);
 

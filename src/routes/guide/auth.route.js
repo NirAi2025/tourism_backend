@@ -81,10 +81,8 @@ router.get("/verify-email/:token", verifyEmail);
  * @swagger
  * /guide/upload-identity-documents:
  *   post:
+ *     summary: Upload guide identity documents
  *     tags: [Guide]
- *     summary: Upload identity documents
- *     consumes:
- *       - multipart/form-data
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -93,48 +91,27 @@ router.get("/verify-email/:token", verifyEmail);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - id_number
- *               - government_id
- *               - selfie
+ *             required: [id_number, government_id, selfie]
  *             properties:
- *               id_number:
- *                 type: string
- *                 example: A123456789
- *               government_id:
- *                 type: string
- *                 format: binary
- *               selfie:
- *                 type: string
- *                 format: binary
- *               address_proof:
- *                 type: string
- *                 format: binary
+ *               id_number: { type: string, example: "A123456789" }
+ *               government_id: { type: string, format: binary }
+ *               selfie: { type: string, format: binary }
+ *               address_proof: { type: string, format: binary }
  *     responses:
- *       200:
- *         description: Identity documents uploaded successfully
- *       401:
- *         description: Unauthorized
- *       400:
- *         description: Validation error
+ *       200: { description: Identity documents uploaded successfully }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
  */
-router.post(
-  "/upload-identity-documents",
-  authenticateToken,
-  uploadGuideIdentity,
-);
+router.post("/upload-identity-documents",authenticateToken,uploadGuideIdentity);
+
 
 /**
  * @swagger
  * /guide/upload-licence-documents:
  *   post:
- *     tags:
- *       - Guide
  *     summary: Upload guide license documents
- *     description: >
- *       Upload one or more guide license documents.
- *       Each uploaded file key represents the license type.
- *       No text fields are required.
+ *     tags: [Guide]
+ *     description: Upload one or more guide license documents (file-only request).
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -144,135 +121,23 @@ router.post(
  *           schema:
  *             type: object
  *             properties:
- *               licensed_tour_guide:
- *                 type: string
- *                 format: binary
- *                 description: Licensed tour guide certificate
- *               tourism_department_id:
- *                 type: string
- *                 format: binary
- *                 description: Tourism department ID document
- *               local_guide_permit:
- *                 type: string
- *                 format: binary
- *                 description: Local guide permit document
- *               special_activity_license:
- *                 type: string
- *                 format: binary
- *                 description: Special activity license document
+ *               licensed_tour_guide: { type: string, format: binary }
+ *               tourism_department_id: { type: string, format: binary }
+ *               local_guide_permit: { type: string, format: binary }
+ *               special_activity_license: { type: string, format: binary }
  *     responses:
- *       200:
- *         description: License documents uploaded successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: License documents uploaded successfully
- *                 data:
- *                   type: integer
- *                   example: 4
- *       400:
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: At least one license document is required
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
+ *       200: { description: License documents uploaded successfully }
+ *       400: { description: At least one license document is required }
+ *       401: { description: Unauthorized }
+ *       500: { description: Server error }
  */
-
-router.post(
-  "/upload-licence-documents",
-  authenticateToken,
-  uploadGuideLicenses,
-);
+router.post("/upload-licence-documents",authenticateToken,uploadGuideLicenses);
 
 /**
  * @swagger
  * /guide/upload-insurance-info:
  *   post:
- *     summary: Upload guide insurance and emergency contact information
- *     tags: [Guide]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - emergency_contact_name
- *               - emergency_contact_phone
- *             properties:
- *               insurance_provider:
- *                 type: string
- *                 example: LIC India
- *               policy_number:
- *                 type: string
- *                 example: POL123456
- *               policy_expiry_date:
- *                 type: string
- *                 format: date
- *                 example: 2026-12-31
- *               insurance_document:
- *                 type: string
- *                 format: binary
- *               emergency_contact_name:
- *                 type: string
- *                 example: Rahul Sharma
- *               emergency_contact_phone:
- *                 type: string
- *                 example: "+919876543210"
- *               emergency_contact_relation:
- *                 type: string
- *                 example: Brother
- *     responses:
- *       200:
- *         description: Insurance information saved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Insurance information saved successfully
- *                 data:
- *                   type: integer
- *                   example: 5
- *       400:
- *         description: Validation error
- *       500:
- *         description: Server error
- */
-router.post(
-  "/upload-insurance-info",
-  authenticateToken,
-  uploadGuideInsuranceInfo,
-);
-
-/**
- * @swagger
- * /guide/languages-skills:
- *   post:
- *     summary: Save guide languages and skills
+ *     summary: Upload guide insurance & emergency contact info
  *     tags: [Guide]
  *     security:
  *       - bearerAuth: []
@@ -282,59 +147,64 @@ router.post(
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - language_ids
- *               - primary_language_id
+ *             required: [emergency_contact_name, emergency_contact_phone]
+ *             properties:
+ *               insurance_provider: { type: string, example: "LIC India" }
+ *               policy_number: { type: string, example: "POL123456" }
+ *               policy_expiry_date: { type: string, format: date, example: "2026-12-31" }
+ *               insurance_document: { type: string, format: binary }
+ *               emergency_contact_name: { type: string, example: "Rahul Sharma" }
+ *               emergency_contact_phone: { type: string, example: "+919876543210" }
+ *               emergency_contact_relation: { type: string, example: "Brother" }
+ *     responses:
+ *       200: { description: Insurance information saved successfully }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
+ *       500: { description: Server error }
+ */
+router.post("/upload-insurance-info",authenticateToken,uploadGuideInsuranceInfo);
+
+/**
+ * @swagger
+ * /guide/languages-skills:
+ *   post:
+ *     summary: Save guide languages & skills
+ *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [language_ids, primary_language_id]
  *             properties:
  *               language_ids:
  *                 type: array
- *                 items:
- *                   type: integer
+ *                 items: { type: integer }
  *                 example: [1, 2, 3]
- *               primary_language_id:
- *                 type: integer
- *                 example: 1
+ *               primary_language_id: { type: integer, example: 1 }
  *               certification_type:
- *                   type: string
- *                   enum:
- *                     - first_aid
- *                     - safety_training
- *                     - other
- *                   example: first_aid
- *               certification_document:
  *                 type: string
- *                 format: binary
+ *                 enum: [first_aid, safety_training, other]
+ *                 example: first_aid
+ *               certification_document: { type: string, format: binary }
  *     responses:
- *       200:
- *         description: Languages and skills saved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Languages and skills saved successfully
- *                 completed_steps:
- *                   type: integer
- *                   example: 6
- *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
+ *       200: { description: Languages and skills saved successfully }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
+ *       500: { description: Server error }
  */
 router.post("/languages-skills", authenticateToken, guideLanguagesAndSkills);
 /**
  * @swagger
  * /guide/payout-info:
  *   post:
- *     summary: Create or update guide payout information
+ *     summary: Create or update guide payout info
  *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -342,84 +212,43 @@ router.post("/languages-skills", authenticateToken, guideLanguagesAndSkills);
  *           schema:
  *             type: object
  *             required:
- *               - account_holder_name
- *               - bank_name
- *               - account_number
- *               - routing_code
- *               - payout_currency
- *               - payout_method
- *               - tax_residency_country_id
- *               - tax_id
+ *               [account_holder_name, bank_name, account_number, payout_currency, payout_method, tax_residency_country_id, tax_id]
  *             properties:
- *               account_holder_name:
- *                 type: string
- *                 example: Rahul Sharma
- *               bank_name:
- *                 type: string
- *                 example: HDFC Bank
- *               account_number:
- *                 type: string
- *                 example: "123456789012"
- *               ifsc_swift_bic:
- *                 type: string
- *                 example: HDFC0001234
- *               payout_currency:
- *                 type: string
- *                 example: INR
- *               payout_method:
- *                 type: string
- *                 example: BANK_TRANSFER
- *               tax_residency_country_id:
- *                 type: integer
- *                 example: 101
- *               tax_id:
- *                 type: string
- *                 example: ABCDE1234F
+ *               account_holder_name: { type: string, example: "Rahul Sharma" }
+ *               bank_name: { type: string, example: "HDFC Bank" }
+ *               account_number: { type: string, example: "123456789012" }
+ *               ifsc_swift_bic: { type: string, example: "HDFC0001234" }
+ *               payout_currency: { type: string, example: "INR" }
+ *               payout_method: { type: string, example: "BANK_TRANSFER" }
+ *               tax_residency_country_id: { type: integer, example: 101 }
+ *               tax_id: { type: string, example: "ABCDE1234F" }
  *     responses:
- *       200:
- *         description: Payout information saved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Payout information saved successfully
- *                 completed_steps:
- *                   type: integer
- *                   example: 6
- *       400:
- *         description: Validation error
- *       500:
- *         description: Server error
+ *       200: { description: Payout information saved successfully }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
+ *       500: { description: Server error }
  */
 router.post("/payout-info", authenticateToken, saveGuidePayoutInfo);
 /**
  * @swagger
  * /guide/public-info:
  *   post:
- *     summary: Save guide profile trust and public information
+ *     summary: Save guide public profile info
  *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - bio
- *               - profile_photo
+ *             required: [bio, profile_photo]
  *             properties:
  *               bio:
  *                 type: string
- *                 example: "I am a certified local guide with 5+ years of experience."
- *               profile_photo:
- *                 type: string
- *                 format: binary
+ *                 example: "Certified local guide with 5+ years of experience."
+ *               profile_photo: { type: string, format: binary }
  *               external_review_links:
  *                 type: string
  *                 example: "https://www.tripadvisor.com/Profile/guide123"
@@ -427,28 +256,11 @@ router.post("/payout-info", authenticateToken, saveGuidePayoutInfo);
  *                 type: string
  *                 example: "https://www.instagram.com/guideprofile"
  *     responses:
- *       200:
- *         description: Profile trust information saved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Profile information saved successfully
- *                 completed_steps:
- *                   type: integer
- *                   example: 7
- *       400:
- *         description: Validation error
- *       500:
- *         description: Server error
+ *       200: { description: Profile information saved successfully }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
+ *       500: { description: Server error }
  */
-
 router.post("/public-info", authenticateToken, guidePublicInfo);
 
 export default router;
