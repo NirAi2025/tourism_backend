@@ -39,7 +39,14 @@ const GuidePayoutAccount = sequelize.define(
       type: DataTypes.STRING(4),
       allowNull: true,
     },
-
+    tax_residency_country_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    tax_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     payout_method: {
       type: DataTypes.ENUM("bank_transfer", "paypal", "stripe", "other"),
       allowNull: true,

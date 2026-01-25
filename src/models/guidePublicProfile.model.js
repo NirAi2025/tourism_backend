@@ -34,7 +34,10 @@ const GuidePublicProfile = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-
+    social_media_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     tripadvisor_url: {
       type: DataTypes.STRING,
       allowNull: true,
