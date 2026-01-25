@@ -1,7 +1,8 @@
 import express from 'express';
 import {
     users,
-    userDetailsById
+    userDetailsById,
+    verifyGuideIdentity
 } from '../../controllers/admin/user.controller.js';
 
 const router = express.Router();
@@ -43,6 +44,34 @@ router.get('/users', users);
  *         description: User not found
  */
 router.get('/users/:id', userDetailsById);
+/**
+ * @swagger
+ * /admin/users/verify-guide-identity:
+ *   post:
+ *     summary: Verify guide identity document
+ *     tags: [Admin Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [guideId, documentId, status]
+ *             properties:
+ *               guideId: { type: integer }
+ *               documentId: { type: integer }
+ *               status: { type: integer, enum: [1, 2] }
+ *               remarks: { type: string }
+ *     responses:
+ *       200:
+ *         description: Success
+ *       400:
+ *         description: Invalid status
+ *       404:
+ *         description: Document not found
+ */
+router.post('/users/verify-guide-identity', verifyGuideIdentity);
+
 
 
 export default router;

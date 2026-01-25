@@ -357,12 +357,12 @@ export const createGuideIdentityService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // 1️⃣ Extract document categories from request
+    // Extract document categories from request
     const categories = documents
       .map((doc) => doc.document_category)
       .filter(Boolean);
 
-    // 2️⃣ Delete existing documents for same guide + categories
+    // Delete existing documents for same guide + categories
     if (categories.length > 0) {
       await GuideIdentity.destroy({
         where: {
@@ -375,7 +375,7 @@ export const createGuideIdentityService = async (payload = {}) => {
       });
     }
 
-    // 3️⃣ Prepare insert rows
+    // Prepare insert rows
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       document_category: doc.document_category,
@@ -385,21 +385,26 @@ export const createGuideIdentityService = async (payload = {}) => {
       verification_status: 0,
     }));
 
-    // 4️⃣ Insert new documents (IMPORTANT: pass transaction)
     await GuideIdentity.bulkCreate(rows, { transaction });
 
-    // 5️⃣ Update completed steps
-    await User.update(
-      { completed_steps: 2 },
-      { where: { id: guideId }, transaction },
-    );
+    const user = await User.findByPk(guideId, {
+      attributes: ["completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
 
-    // 6️⃣ Commit transaction
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 2 },
+        { transaction }
+      );
+    }
+
     await transaction.commit();
 
     return {
       message: "Identity documents submitted successfully",
-      completed_steps: 2,
+      completed_steps: user.completed_steps
     };
   } catch (error) {
     await transaction.rollback();
@@ -413,12 +418,11 @@ export const createGuideLicenseService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // 1️⃣ Extract license types from request
+    // Extract license types from request
     const licenseTypes = documents
       .map((doc) => doc.license_type)
       .filter(Boolean);
 
-    // 2️⃣ Delete existing licenses for same guide + license types
     if (licenseTypes.length > 0) {
       await GuideLicense.destroy({
         where: {
@@ -431,7 +435,6 @@ export const createGuideLicenseService = async (payload = {}) => {
       });
     }
 
-    // 3️⃣ Prepare new rows
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       license_type: doc.license_type,
@@ -439,21 +442,26 @@ export const createGuideLicenseService = async (payload = {}) => {
       verification_status: 0,
     }));
 
-    // 4️⃣ Insert new licenses
     await GuideLicense.bulkCreate(rows, { transaction });
 
-    // 5️⃣ Update completed step
-    await User.update(
-      { completed_steps: 3 },
-      { where: { id: guideId }, transaction },
-    );
+    const user = await User.findByPk(guideId, {
+      attributes: ["completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
 
-    // 6️⃣ Commit transaction
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 3 },
+        { transaction }
+      );
+    }
+
     await transaction.commit();
 
     return {
       message: "License documents uploaded successfully",
-      completed_steps: 3,
+      completed_steps: user.completed_steps
     };
   } catch (error) {
     await transaction.rollback();
@@ -491,16 +499,24 @@ export const createGuideInsuranceService = async (payload = {}) => {
       { transaction },
     );
 
-    await User.update(
-      { completed_steps: 4 },
-      { where: { id: guideId }, transaction },
-    );
+    const user = await User.findByPk(guideId, {
+      attributes: ["completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 4 },
+        { transaction }
+      );
+    }
 
     await transaction.commit();
 
     return {
       message: "Insurance and emergency information saved successfully",
-      completed_steps: 4,
+      completed_steps: user.completed_steps
     };
   } catch (error) {
     await transaction.rollback();
@@ -533,7 +549,7 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
       const languageRows = language_ids.map((languageId) => ({
         guide_id: guideId,
         language_id: languageId,
-        is_primary: Number(languageId) === Number(primary_language_id),
+        is_primary: Number(languageId) == Number(primary_language_id),
       }));
 
       await GuideLanguage.bulkCreate(languageRows, { transaction });
@@ -558,14 +574,23 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
         { transaction }
       );
     }
-    await User.update(
-      { completed_steps: 5 },
-      { where: { id: guideId }, transaction }
-    );
+    
+    const user = await User.findByPk(guideId, {
+      attributes: ["completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
 
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 5 },
+        { transaction }
+      );
+    }
+    await transaction.commit();
     return {
       message: "Languages and skills saved successfully",
-      completed_steps: 5,
+      completed_steps: user.completed_steps
     };
   });
 };
@@ -606,15 +631,23 @@ export const guidePayoutInfoService = async (payload = {}) => {
         },
         { transaction },
       );
-      await User.update(
-        { completed_steps: 6 },
-        { where: { id: guideId }, transaction },
-      );
+      const user = await User.findByPk(guideId, {
+        attributes: ["completed_steps"],
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+
+      if (user && user.completed_steps < 7) {
+        await user.update(
+          { completed_steps: 6 },
+          { transaction }
+        );
+      }
       await transaction.commit();
 
       return {
         message: "Payout information updated successfully",
-        completed_steps: 6,
+        completed_steps: user.completed_steps,
       };
     }
 

@@ -1,5 +1,5 @@
-import { 
-  User, 
+import {
+  User,
   Role,
   Profile,
   GuideIdentity,
@@ -8,11 +8,13 @@ import {
   GuidePayoutAccount,
   GuidePublicProfile,
   GuideLanguage,
-  GuideCertification, 
+  GuideCertification,
 } from "../../models/index.js";
 import { StatusCodes } from "http-status-codes";
+import sequelize from "../../config/database.js";
 import ApiError from "../../utils/ApiError.js";
 import { withFileUrl } from "../../config/fileUploadPath.js";
+import GuideVerification from "../../models/guideVerification.model.js";
 
 export const getAllUserService = async ({
   type,
@@ -31,9 +33,9 @@ export const getAllUserService = async ({
 
   const userWhere = {};
 
-//   if (filters.status !== undefined) {
-//     userWhere.status = filters.status;
-//   }
+  //   if (filters.status !== undefined) {
+  //     userWhere.status = filters.status;
+  //   }
 
   if (filters.email) {
     userWhere.email = filters.email;
@@ -46,7 +48,7 @@ export const getAllUserService = async ({
     where: userWhere,
     limit: pageSize,
     offset,
-    distinct: true, 
+    distinct: true,
     include: [
       {
         model: Role,
@@ -94,27 +96,78 @@ export const userDetailsByIdService = async (userId) => {
   if (data.guide_public_profile?.profile_photo) {
     data.guide_public_profile.profile_photo = withFileUrl(
       data.guide_public_profile.profile_photo,
-      "profile"
+      "profile",
     );
   }
 
-  data.guide_identities?.forEach(d =>
-    d.document_file = withFileUrl(d.document_file, "identity-doc")
+  data.guide_identities?.forEach(
+    (d) => (d.document_file = withFileUrl(d.document_file, "identity-doc")),
   );
 
-  data.guide_licenses?.forEach(l =>
-    l.document_file = withFileUrl(l.document_file, "identity-doc")
+  data.guide_licenses?.forEach(
+    (l) => (l.document_file = withFileUrl(l.document_file, "identity-doc")),
   );
   if (data.guide_insurance?.insurance_document) {
     data.guide_insurance.insurance_document = withFileUrl(
       data.guide_insurance.insurance_document,
-      "identity-doc"
+      "identity-doc",
     );
   }
 
-  data.guide_certifications?.forEach(c =>
-    c.certificate_file = withFileUrl(c.certificate_file, "identity-doc")
+  data.guide_certifications?.forEach(
+    (c) =>
+      (c.certificate_file = withFileUrl(c.certificate_file, "identity-doc")),
   );
 
   return data;
+};
+
+export const verifyGuideIdentityService = async (payload = {}) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const { userId, guideId, documentId, status, remarks } = payload;
+    if (![1, 2].includes(status)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid verification status");
+    }
+    const guideIdentity = await GuideIdentity.findOne({
+      where: {
+        id: documentId,
+        guide_id: guideId,
+      },
+      transaction,
+    });
+    if (!guideIdentity) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        "Guide identity document not found",
+      );
+    }
+    await guideIdentity.update(
+      {
+        verification_status: status,
+        rejection_reason: status == 2 ? remarks : null,
+      },
+      { transaction },
+    );
+    // store data for log
+    await GuideVerification.create(
+      {
+        guide_id: guideId,
+        verified_by: userId,
+        verification_date: new Date(),
+        status: status,
+        remarks: remarks,
+      },
+      { transaction },
+    );
+    await transaction.commit();
+
+    return {
+      message: "Document verification status updated successfully"
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };

@@ -17,6 +17,7 @@ import {
   IDENTITY_DOC_UPLOAD_PATH,
   PROFILE_IMG_UPLOAD_PATH,
 } from "../../config/fileUploadPath.js";
+import ApiError from "../../utils/ApiError.js";
 
 export const register = async (req, res) => {
   try {
