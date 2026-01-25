@@ -15,6 +15,9 @@ const Profile = sequelize.define(
     dob: {
       type: DataTypes.DATE,
     },
+    nationality: {
+      type: DataTypes.BIGINT,
+    },
     gender: {
       type: DataTypes.TINYINT,
       defaultValue: null,

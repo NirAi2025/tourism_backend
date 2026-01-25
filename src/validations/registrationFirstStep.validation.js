@@ -29,7 +29,6 @@ export const registrationSchema = Joi.object({
     "any.required": "Password is required",
   }),
 
-  // -------- Optional fields --------
 
   whatsAppNumber: Joi.string().optional().allow(null, "").messages({
     "string.base": "WhatsApp number must be a string",
@@ -46,9 +45,9 @@ export const registrationSchema = Joi.object({
     "date.base": "Date of birth must be a valid date",
   }),
 
-  nationality: Joi.string().trim().required().messages({
+  nationality: Joi.number().integer().required().messages({
     "any.required": "Nationality is required",
-    "string.base": "Nationality must be a string",
+    "number.base": "Nationality must be a number",
   }),
 
   countryOfOperation: Joi.number().integer().required().messages({
@@ -61,8 +60,7 @@ export const registrationSchema = Joi.object({
     "number.base": "Primary city must be a number",
   }),
 
-  yearsOfExperience: Joi.number().integer().min(0).required().messages({
-    "any.required": "Years of experience is required",
+  yearsOfExperience: Joi.number().integer().min(0).optional().messages({
     "number.base": "Years of experience must be a number",
     "number.min": "Years of experience cannot be negative",
   }),

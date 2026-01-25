@@ -12,11 +12,17 @@ export async function up(queryInterface, Sequelize) {
   });
 
   // preferred_language
-  await queryInterface.addColumn("users", "preferred_language", {
-    type: Sequelize.STRING,
+  await queryInterface.addColumn("users", "language_id", {
+    type: Sequelize.BIGINT,
     allowNull: true,
     defaultValue: null,
     after: "profile_image",
+    references: {
+      model: "languages",
+      key: "id",
+    },
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
   });
 
   // is_verified

@@ -25,8 +25,14 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
     },
     nationality: {
-      type: Sequelize.STRING,
+      type: Sequelize.BIGINT,
       allowNull: true,
+      references: {
+        model: "countries",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     },
     gender: {
       type: Sequelize.TINYINT,

@@ -44,7 +44,7 @@ const router = express.Router();
  *               whatsAppNumber: { type: string, example: "9876543210" }
  *               languageId: { type: integer, example: 1 }
  *               dob: { type: string, format: date, example: "1995-08-15" }
- *               nationality: { type: string, example: Indian }
+ *               nationality: { type: integer, example: 101 }
  *               countryOfOperation: { type: integer, example: 101 }
  *               primaryCity: { type: integer, example: 12 }
  *               yearsOfExperience: { type: integer, example: 5 }
