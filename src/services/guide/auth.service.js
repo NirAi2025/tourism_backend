@@ -390,7 +390,7 @@ export const createGuideIdentityService = async (payload = {}) => {
     await GuideIdentity.bulkCreate(rows, { transaction });
 
     const user = await User.findByPk(guideId, {
-      attributes: ["completed_steps"],
+      attributes: ["id", "completed_steps"],
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
@@ -447,7 +447,7 @@ export const createGuideLicenseService = async (payload = {}) => {
     await GuideLicense.bulkCreate(rows, { transaction });
 
     const user = await User.findByPk(guideId, {
-      attributes: ["completed_steps"],
+      attributes: ["id", "completed_steps"],
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
@@ -502,7 +502,7 @@ export const createGuideInsuranceService = async (payload = {}) => {
     );
 
     const user = await User.findByPk(guideId, {
-      attributes: ["completed_steps"],
+      attributes: ["id", "completed_steps"],
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
@@ -578,7 +578,7 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
     }
     
     const user = await User.findByPk(guideId, {
-      attributes: ["completed_steps"],
+      attributes: ["id", "completed_steps"],
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
@@ -634,17 +634,17 @@ export const guidePayoutInfoService = async (payload = {}) => {
         { transaction },
       );
       const user = await User.findByPk(guideId, {
-        attributes: ["completed_steps"],
-        transaction,
-        lock: transaction.LOCK.UPDATE,
-      });
+      attributes: ["id", "completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
 
-      if (user && user.completed_steps < 7) {
-        await user.update(
-          { completed_steps: 6 },
-          { transaction }
-        );
-      }
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 6 },
+        { transaction }
+      );
+    }
       await transaction.commit();
 
       return {
@@ -706,10 +706,20 @@ export const guidePublicInfoService = async (payload = {}) => {
     );
 
     // Update onboarding step
-    await User.update(
-      { completed_steps: 7 },
-      { where: { id: guideId }, transaction },
-    );
+    const user = await User.findByPk(guideId, {
+      attributes: ["id", "completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    if (user && user.completed_steps < 7) {
+      await user.update(
+        { completed_steps: 7 },
+        { transaction }
+      );
+    }
+
+    await transaction.commit();
 
     return {
       message: "Profile information saved successfully",
