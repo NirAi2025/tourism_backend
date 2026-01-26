@@ -60,3 +60,5 @@ coverage/
 # Sequelize CLI
 # ============================
 .sequelize
+
+package-lock.json
