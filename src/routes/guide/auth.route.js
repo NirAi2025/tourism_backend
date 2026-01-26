@@ -156,7 +156,7 @@ router.post("/upload-licence-documents",authenticateToken,uploadGuideLicenses);
  *               policy_expiry_date: { type: string, format: date, example: "2026-12-31" }
  *               insurance_document: { type: string, format: binary }
  *               emergency_contact_name: { type: string, example: "Rahul Sharma" }
- *               emergency_contact_phone: { type: string, example: "+919876543210" }
+ *               emergency_contact_phone: { type: string, example: "9876543210" }
  *               emergency_contact_relation: { type: string, example: "Brother" }
  *     responses:
  *       200: { description: Insurance information saved successfully }
