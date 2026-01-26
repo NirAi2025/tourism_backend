@@ -690,48 +690,54 @@ export const guidePayoutInfoService = async (payload = {}) => {
   }
 };
 export const guidePublicInfoService = async (payload = {}) => {
-  const {
-    guideId,
-    bio,
-    profile_photo,
-    external_review_links,
-    social_media_url,
-  } = payload;
+  const transaction = await sequelize.transaction();
+  try{
+    const {
+      guideId,
+      bio,
+      profile_photo,
+      external_review_links,
+      social_media_url,
+    } = payload;
 
-  return sequelize.transaction(async (transaction) => {
-    // Upsert public profile (create or update)
-    await GuidePublicProfile.upsert(
-      {
-        guide_id: guideId,
-        bio,
-        profile_photo,
-        google_review_url: external_review_links,
-        social_media_url,
-      },
-      { transaction },
-    );
-
-    // Update onboarding step
-    const user = await User.findByPk(guideId, {
-      attributes: ["id", "completed_steps"],
-      transaction,
-      lock: transaction.LOCK.UPDATE,
-    });
-
-    if (user && user.completed_steps < 7) {
-      await user.update(
-        { completed_steps: 7 },
-        { transaction }
+    // return sequelize.transaction(async (transaction) => {
+      // Upsert public profile (create or update)
+      await GuidePublicProfile.upsert(
+        {
+          guide_id: guideId,
+          bio,
+          profile_photo,
+          google_review_url: external_review_links,
+          social_media_url,
+        },
+        { transaction },
       );
-    }
 
-    await transaction.commit();
+      // Update onboarding step
+      const user = await User.findByPk(guideId, {
+        attributes: ["id", "completed_steps"],
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
 
-    return {
-      message: "Profile information saved successfully",
-      completed_steps: 7,
-    };
-  });
+      if (user && user.completed_steps < 7) {
+        await user.update(
+          { completed_steps: 7 },
+          { transaction }
+        );
+      }
+
+      await transaction.commit();
+
+      return {
+        message: "Profile information saved successfully",
+        completed_steps: 7,
+      };
+    // });
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 // --------------------------------- signup / registration ---------------------------------
