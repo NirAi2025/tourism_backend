@@ -49,6 +49,16 @@ export async function up(queryInterface, Sequelize) {
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
+    state_id: {
+      type: Sequelize.BIGINT,
+      allowNull: true,
+      references: {
+        model: "states",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+    },
     base_city_id: {
       type: Sequelize.BIGINT,
       allowNull: true,

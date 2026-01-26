@@ -47,6 +47,7 @@ const router = express.Router();
  *               dob: { type: string, format: date, example: "1995-08-15" }
  *               nationality: { type: integer, example: 101 }
  *               countryOfOperation: { type: integer, example: 101 }
+ *               stateId: { type: integer, example: 1111 }
  *               primaryCity: { type: integer, example: 12 }
  *               yearsOfExperience: { type: integer, example: 5 }
  *     responses:

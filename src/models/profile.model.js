@@ -33,6 +33,10 @@ const Profile = sequelize.define(
       type: DataTypes.BIGINT,
       defaultValue: null,
     },
+    state_id: {
+      type: DataTypes.BIGINT,
+      defaultValue: null,
+    },
     base_city_id: {
       type: DataTypes.BIGINT,
       defaultValue: null,

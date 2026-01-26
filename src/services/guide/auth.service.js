@@ -37,6 +37,7 @@ export const registrationService = async (payload = {}) => {
     dob,
     nationality,
     countryOfOperation,
+    stateId,
     primaryCity,
     yearsOfExperience,
   } = payload;
@@ -101,6 +102,7 @@ export const registrationService = async (payload = {}) => {
         dob,
         nationality,
         tour_country_id: countryOfOperation,
+        state_id: stateId,
         base_city_id: primaryCity,
         experience_years: yearsOfExperience ?? null,
       },

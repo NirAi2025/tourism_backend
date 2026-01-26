@@ -23,7 +23,7 @@ export const countryCurrencyService = async () => {
 };
 export const getAllCountriesService = async () => {
   const countries = await Country.findAll({
-    attributes: ['id', 'name', 'currency'],
+    attributes: ['id', 'name', 'currency', 'phone_code'],
     raw: true,
   });
 
