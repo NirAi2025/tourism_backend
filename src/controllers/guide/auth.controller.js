@@ -154,7 +154,7 @@ export const uploadGuideIdentity = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: response.message,
-      data: response.completed_steps,
+      completed_steps: response.completed_steps,
     });
   } catch (error) {
     return res
@@ -219,7 +219,7 @@ export const uploadGuideLicenses = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: response.message,
-      data: response.completed_steps,
+      completed_steps: response.completed_steps,
     });
   } catch (error) {
     return res.status(error.statusCode || 500).json({
@@ -272,7 +272,7 @@ export const uploadGuideInsuranceInfo = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: response.message,
-      data: response.completed_steps,
+      completed_steps: response.completed_steps,
     });
   } catch (error) {
     return res.status(error.statusCode || 500).json({
