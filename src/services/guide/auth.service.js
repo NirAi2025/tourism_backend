@@ -750,7 +750,7 @@ export const myProfileService = async (guideId) => {
       { model: Profile, as: "profile" },
       { model: GuideIdentity, as: "guide_identities" },
       { model: GuideLicense, as: "guide_licenses" },
-      { model: GuideInsurance, as: "guide_insurances" },
+      { model: GuideInsurance, as: "guide_insurance" },
       { model: GuidePayoutAccount, as: "guide_payout_account" },
       { model: GuidePublicProfile, as: "guide_public_profile" },
       { model: GuideLanguage, as: "guide_languages" },
