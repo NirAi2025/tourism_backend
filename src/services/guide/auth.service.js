@@ -528,73 +528,79 @@ export const createGuideInsuranceService = async (payload = {}) => {
 
 // step 5: guide languages and skills
 export const guideLanguageAndSkillsService = async (payload = {}) => {
-  const {
-    guideId,
-    language_ids = [],
-    primary_language_id,
-    certification_type = "first_aid", 
-    certification_document,
-  } = payload;
+  const transaction = await sequelize.transaction();
+  try{
+    const {
+      guideId,
+      language_ids = [],
+      primary_language_id,
+      certification_type = "first_aid", 
+      certification_document,
+    } = payload;
 
-  if (!guideId) {
-    throw new Error("guideId is required");
+    if (!guideId) {
+      throw new Error("guideId is required");
+    }
+
+    // return sequelize.transaction(async (transaction) => {
+      if (Array.isArray(language_ids) && language_ids.length > 0) {
+        // delete existing languages
+        await GuideLanguage.destroy({
+          where: { guide_id: guideId },
+          transaction,
+        });
+
+        const languageRows = language_ids.map((languageId) => ({
+          guide_id: guideId,
+          language_id: languageId,
+          is_primary: Number(languageId) == Number(primary_language_id),
+        }));
+
+        await GuideLanguage.bulkCreate(languageRows, { transaction });
+      }
+      if (certification_document) {
+        // delete existing certification of same type
+        await GuideCertification.destroy({
+          where: {
+            guide_id: guideId,
+            certification_type,
+          },
+          transaction,
+        });
+
+        // insert new certification
+        await GuideCertification.create(
+          {
+            guide_id: guideId,
+            certification_type,
+            certificate_file: certification_document,
+          },
+          { transaction }
+        );
+      }
+      
+      const user = await User.findByPk(guideId, {
+        attributes: ["id", "completed_steps"],
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+
+      if (user && user.completed_steps < 7) {
+        await user.update(
+          { completed_steps: 5 },
+          { transaction }
+        );
+      }
+      await transaction.commit();
+      return {
+        message: "Languages and skills saved successfully",
+        completed_steps: user.completed_steps
+      };
+    // });
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
-
-  return sequelize.transaction(async (transaction) => {
-    if (Array.isArray(language_ids) && language_ids.length > 0) {
-      // delete existing languages
-      await GuideLanguage.destroy({
-        where: { guide_id: guideId },
-        transaction,
-      });
-
-      const languageRows = language_ids.map((languageId) => ({
-        guide_id: guideId,
-        language_id: languageId,
-        is_primary: Number(languageId) == Number(primary_language_id),
-      }));
-
-      await GuideLanguage.bulkCreate(languageRows, { transaction });
-    }
-    if (certification_document) {
-      // delete existing certification of same type
-      await GuideCertification.destroy({
-        where: {
-          guide_id: guideId,
-          certification_type,
-        },
-        transaction,
-      });
-
-      // insert new certification
-      await GuideCertification.create(
-        {
-          guide_id: guideId,
-          certification_type,
-          certificate_file: certification_document,
-        },
-        { transaction }
-      );
-    }
-    
-    const user = await User.findByPk(guideId, {
-      attributes: ["id", "completed_steps"],
-      transaction,
-      lock: transaction.LOCK.UPDATE,
-    });
-
-    if (user && user.completed_steps < 7) {
-      await user.update(
-        { completed_steps: 5 },
-        { transaction }
-      );
-    }
-    await transaction.commit();
-    return {
-      message: "Languages and skills saved successfully",
-      completed_steps: user.completed_steps
-    };
-  });
 };
 
 export const guidePayoutInfoService = async (payload = {}) => {
