@@ -4,10 +4,12 @@ import { StatusCodes } from "http-status-codes";
 import crypto from "crypto";
 import ApiError from "../../utils/ApiError.js";
 import sequelize from "../../config/database.js";
+import { withFileUrl } from "../../config/fileUploadPath.js";
 import {
-  withFileUrl
-} from "../../config/fileUploadPath.js";
-import {
+  Country,
+  City,
+  State,
+  Language,
   GuideIdentity,
   GuideLicense,
   GuideInsurance,
@@ -395,10 +397,7 @@ export const createGuideIdentityService = async (payload = {}) => {
     let updatedSteps = user?.completed_steps;
 
     if (user && user.completed_steps < 2) {
-      await user.update(
-        { completed_steps: 2 },
-        { transaction }
-      );
+      await user.update({ completed_steps: 2 }, { transaction });
       updatedSteps = 2;
     }
 
@@ -413,7 +412,6 @@ export const createGuideIdentityService = async (payload = {}) => {
     throw error;
   }
 };
-
 
 // step 3: guide license documents
 export const createGuideLicenseService = async (payload = {}) => {
@@ -454,17 +452,14 @@ export const createGuideLicenseService = async (payload = {}) => {
     });
 
     if (user && user.completed_steps < 7) {
-      await user.update(
-        { completed_steps: 3 },
-        { transaction }
-      );
+      await user.update({ completed_steps: 3 }, { transaction });
     }
 
     await transaction.commit();
 
     return {
       message: "License documents uploaded successfully",
-      completed_steps: user.completed_steps
+      completed_steps: user.completed_steps,
     };
   } catch (error) {
     await transaction.rollback();
@@ -509,17 +504,14 @@ export const createGuideInsuranceService = async (payload = {}) => {
     });
 
     if (user && user.completed_steps < 7) {
-      await user.update(
-        { completed_steps: 4 },
-        { transaction }
-      );
+      await user.update({ completed_steps: 4 }, { transaction });
     }
 
     await transaction.commit();
 
     return {
       message: "Insurance and emergency information saved successfully",
-      completed_steps: user.completed_steps
+      completed_steps: user.completed_steps,
     };
   } catch (error) {
     await transaction.rollback();
@@ -530,12 +522,12 @@ export const createGuideInsuranceService = async (payload = {}) => {
 // step 5: guide languages and skills
 export const guideLanguageAndSkillsService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
-  try{
+  try {
     const {
       guideId,
       language_ids = [],
       primary_language_id,
-      certification_type = "first_aid", 
+      certification_type = "first_aid",
       certification_document,
     } = payload;
 
@@ -544,59 +536,56 @@ export const guideLanguageAndSkillsService = async (payload = {}) => {
     }
 
     // return sequelize.transaction(async (transaction) => {
-      if (Array.isArray(language_ids) && language_ids.length > 0) {
-        // delete existing languages
-        await GuideLanguage.destroy({
-          where: { guide_id: guideId },
-          transaction,
-        });
-
-        const languageRows = language_ids.map((languageId) => ({
-          guide_id: guideId,
-          language_id: languageId,
-          is_primary: Number(languageId) == Number(primary_language_id),
-        }));
-
-        await GuideLanguage.bulkCreate(languageRows, { transaction });
-      }
-      if (certification_document) {
-        // delete existing certification of same type
-        await GuideCertification.destroy({
-          where: {
-            guide_id: guideId,
-            certification_type,
-          },
-          transaction,
-        });
-
-        // insert new certification
-        await GuideCertification.create(
-          {
-            guide_id: guideId,
-            certification_type,
-            certificate_file: certification_document,
-          },
-          { transaction }
-        );
-      }
-      
-      const user = await User.findByPk(guideId, {
-        attributes: ["id", "completed_steps"],
+    if (Array.isArray(language_ids) && language_ids.length > 0) {
+      // delete existing languages
+      await GuideLanguage.destroy({
+        where: { guide_id: guideId },
         transaction,
-        lock: transaction.LOCK.UPDATE,
       });
 
-      if (user && user.completed_steps < 7) {
-        await user.update(
-          { completed_steps: 5 },
-          { transaction }
-        );
-      }
-      await transaction.commit();
-      return {
-        message: "Languages and skills saved successfully",
-        completed_steps: user.completed_steps
-      };
+      const languageRows = language_ids.map((languageId) => ({
+        guide_id: guideId,
+        language_id: languageId,
+        is_primary: Number(languageId) == Number(primary_language_id),
+      }));
+
+      await GuideLanguage.bulkCreate(languageRows, { transaction });
+    }
+    if (certification_document) {
+      // delete existing certification of same type
+      await GuideCertification.destroy({
+        where: {
+          guide_id: guideId,
+          certification_type,
+        },
+        transaction,
+      });
+
+      // insert new certification
+      await GuideCertification.create(
+        {
+          guide_id: guideId,
+          certification_type,
+          certificate_file: certification_document,
+        },
+        { transaction },
+      );
+    }
+
+    const user = await User.findByPk(guideId, {
+      attributes: ["id", "completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    if (user && user.completed_steps < 7) {
+      await user.update({ completed_steps: 5 }, { transaction });
+    }
+    await transaction.commit();
+    return {
+      message: "Languages and skills saved successfully",
+      completed_steps: user.completed_steps,
+    };
     // });
   } catch (error) {
     await transaction.rollback();
@@ -641,17 +630,14 @@ export const guidePayoutInfoService = async (payload = {}) => {
         { transaction },
       );
       const user = await User.findByPk(guideId, {
-      attributes: ["id", "completed_steps"],
-      transaction,
-      lock: transaction.LOCK.UPDATE,
-    });
+        attributes: ["id", "completed_steps"],
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
 
-    if (user && user.completed_steps < 7) {
-      await user.update(
-        { completed_steps: 6 },
-        { transaction }
-      );
-    }
+      if (user && user.completed_steps < 7) {
+        await user.update({ completed_steps: 6 }, { transaction });
+      }
       await transaction.commit();
 
       return {
@@ -692,7 +678,7 @@ export const guidePayoutInfoService = async (payload = {}) => {
 };
 export const guidePublicInfoService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
-  try{
+  try {
     const {
       guideId,
       bio,
@@ -702,38 +688,35 @@ export const guidePublicInfoService = async (payload = {}) => {
     } = payload;
 
     // return sequelize.transaction(async (transaction) => {
-      // Upsert public profile (create or update)
-      await GuidePublicProfile.upsert(
-        {
-          guide_id: guideId,
-          bio,
-          profile_photo,
-          google_review_url: external_review_links,
-          social_media_url,
-        },
-        { transaction },
-      );
+    // Upsert public profile (create or update)
+    await GuidePublicProfile.upsert(
+      {
+        guide_id: guideId,
+        bio,
+        profile_photo,
+        google_review_url: external_review_links,
+        social_media_url,
+      },
+      { transaction },
+    );
 
-      // Update onboarding step
-      const user = await User.findByPk(guideId, {
-        attributes: ["id", "completed_steps"],
-        transaction,
-        lock: transaction.LOCK.UPDATE,
-      });
+    // Update onboarding step
+    const user = await User.findByPk(guideId, {
+      attributes: ["id", "completed_steps"],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
 
-      if (user && user.completed_steps < 7) {
-        await user.update(
-          { completed_steps: 7 },
-          { transaction }
-        );
-      }
+    if (user && user.completed_steps < 7) {
+      await user.update({ completed_steps: 7 }, { transaction });
+    }
 
-      await transaction.commit();
+    await transaction.commit();
 
-      return {
-        message: "Profile information saved successfully",
-        completed_steps: 7,
-      };
+    return {
+      message: "Profile information saved successfully",
+      completed_steps: 7,
+    };
     // });
   } catch (error) {
     await transaction.rollback();
@@ -748,13 +731,53 @@ export const myProfileService = async (guideId) => {
     where: { id: guideId },
     attributes: { exclude: ["password"] },
     include: [
-      { model: Profile, as: "profile" },
+      { model: Role, as: "roles", through: { attributes: [] } },
+      {
+        model: Profile,
+        as: "profile",
+        include: [
+          {
+            model: Country,
+            as: "nationality_country",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Country,
+            as: "tour_country",
+            attributes: ["id", "name"],
+          },
+          {
+            model: State,
+            as: "state",
+            attributes: ["id", "name"],
+          },
+          {
+            model: City,
+            as: "base_city",
+            attributes: ["id", "name"],
+          },
+        ],
+      },
       { model: GuideIdentity, as: "guide_identities" },
       { model: GuideLicense, as: "guide_licenses" },
       { model: GuideInsurance, as: "guide_insurance" },
-      { model: GuidePayoutAccount, as: "guide_payout_account" },
+      {
+        model: GuidePayoutAccount,
+        as: "guide_payout_account",
+        include: [
+          {
+            model: Country,
+            as: "tax_residency_country",
+            attributes: ["id", "name"],
+          },
+        ],
+      },
       { model: GuidePublicProfile, as: "guide_public_profile" },
-      { model: GuideLanguage, as: "guide_languages" },
+      {
+        model: GuideLanguage,
+        as: "guide_languages",
+        include: [{ model: Language, attributes: ["id", "name"] }],
+      },
       { model: GuideCertification, as: "guide_certifications" },
     ],
   });
@@ -764,33 +787,27 @@ export const myProfileService = async (guideId) => {
   }
 
   const data = guideProfile.toJSON();
-  
+
   if (data.guide_public_profile?.profile_photo) {
     data.guide_public_profile.profile_photo = withFileUrl(
       data.guide_public_profile.profile_photo,
-      "profile"
+      "profile",
     );
   }
   data.guide_identities?.forEach((doc) => {
     doc.document_file = withFileUrl(doc.document_file, "identity-doc");
   });
   data.guide_licenses?.forEach((license) => {
-    license.document_file = withFileUrl(
-      license.document_file,
-      "identity-doc"
-    );
+    license.document_file = withFileUrl(license.document_file, "identity-doc");
   });
   if (data.guide_insurance?.insurance_document) {
     data.guide_insurance.insurance_document = withFileUrl(
       data.guide_insurance.insurance_document,
-      "identity-doc"
+      "identity-doc",
     );
   }
   data.guide_certifications?.forEach((cert) => {
-    cert.certificate_file = withFileUrl(
-      cert.certificate_file,
-      "identity-doc"
-    );
+    cert.certificate_file = withFileUrl(cert.certificate_file, "identity-doc");
   });
 
   return data;
