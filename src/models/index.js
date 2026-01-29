@@ -58,7 +58,11 @@ Category.belongsTo(Category, { foreignKey: "parent_id", as: "parentCategory" });
 Profile.belongsTo(User, { foreignKey: "user_id" });
 User.hasOne(Profile, { foreignKey: "user_id" });
 
-Profile.belongsTo(City, { foreignKey: "base_city_id" });
+Profile.belongsTo(City, { foreignKey: "base_city_id", as: "base_city" });
+Profile.belongsTo(Country, { foreignKey: "nationality", as: "nationality_country" });
+Profile.belongsTo(Country, {foreignKey: "tour_country_id", as: "tour_country" });
+Profile.belongsTo(State, {foreignKey: "state_id", as: "state" });
+
 
 GuideIdentity.belongsTo(User, { foreignKey: "guide_id" });
 User.hasMany(GuideIdentity, { foreignKey: "guide_id" });
@@ -77,6 +81,7 @@ User.hasOne(UserEmailVerification, { foreignKey: "user_id" });
 
 GuideLanguage.belongsTo(User, { foreignKey: "guide_id" });
 User.hasMany(GuideLanguage, { foreignKey: "guide_id" });
+GuideLanguage.belongsTo(Language, { foreignKey: "language_id" });
 
 GuideCertification.belongsTo(User, { foreignKey: "guide_id" });
 User.hasMany(GuideCertification, { foreignKey: "guide_id" });
@@ -86,6 +91,7 @@ User.hasOne(GuideInsurance, { foreignKey: "guide_id" });
 
 GuidePayoutAccount.belongsTo(User, { foreignKey: "guide_id", as: "guide_payout_account" });
 User.hasOne(GuidePayoutAccount, { foreignKey: "guide_id" });
+GuidePayoutAccount.belongsTo(Country, { foreignKey: "tax_residency_country_id", as: "tax_residency_country" });
 
 GuidePublicProfile.belongsTo(User, { foreignKey: "guide_id" });
 User.hasOne(GuidePublicProfile, { foreignKey: "guide_id" });

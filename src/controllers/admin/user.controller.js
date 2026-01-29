@@ -3,7 +3,9 @@ import constants from "../../config/constants.js";
 import { 
   getAllUserService,
   userDetailsByIdService,
-  verifyGuideIdentityService 
+  verifyGuideIdentityService,
+  verifyGuideLicenseService,
+  verifyOverallGuideAccountService 
 } from "../../services/user/user.service.js";
 import ApiError from "../../utils/ApiError.js";
 
@@ -74,6 +76,46 @@ export const verifyGuideIdentity = async (req, res) => {
     const payload = req.body;
     payload.userId = userId;
     const result = await verifyGuideIdentityService(payload);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || constants.INTERNAL_SERVER_ERROR,
+      });
+  }
+};
+export const verifyGuideLicence = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const payload = req.body;
+    payload.userId = userId;
+    const result = await verifyGuideLicenseService(payload);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || constants.INTERNAL_SERVER_ERROR,
+      });
+  }
+};
+export const verifyOverallGuideAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const payload = req.body;
+    payload.userId = userId;
+    const result = await verifyOverallGuideAccountService(payload);
 
     return res.status(StatusCodes.OK).json({
       success: true,

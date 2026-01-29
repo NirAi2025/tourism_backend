@@ -93,7 +93,6 @@ router.get("/verify-email/:token", verifyEmail);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [id_number, government_id, selfie]
  *             properties:
  *               id_number: { type: string, example: "A123456789" }
  *               government_id: { type: string, format: binary }

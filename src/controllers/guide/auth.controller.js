@@ -88,56 +88,61 @@ export const uploadGuideIdentity = async (req, res) => {
   try {
     const guideId = req.user.id;
     const { id_number } = req.body;
-    const files = req.files;
+    const files = req.files || {};
 
-    if (!id_number) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "ID number is required");
-    }
-
-    if (!files?.government_id || !files?.selfie) {
+    if (
+      !files.government_id &&
+      !files.selfie &&
+      !files.address_proof
+    ) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        "Government ID and Selfie with ID are required",
+        "At least one document must be uploaded"
       );
     }
 
-    // console.log();
+    if (id_number && !files.government_id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Government ID is required when ID number is provided"
+      );
+    }
 
-    // Upload files
-    const governmentId = await fileUploaderSingle(
-      IDENTITY_DOC_UPLOAD_PATH,
-      files.government_id,
-    );
+    const documents = [];
 
-    const selfieWithId = await fileUploaderSingle(
-      IDENTITY_DOC_UPLOAD_PATH,
-      files.selfie,
-    );
-
-    let addressProof = null;
-    if (files.address_proof) {
-      addressProof = await fileUploaderSingle(
+    if (files.government_id) {
+      const governmentId = await fileUploaderSingle(
         IDENTITY_DOC_UPLOAD_PATH,
-        files.address_proof,
+        files.government_id
       );
-    }
 
-    // Build records for DB
-    const documents = [
-      {
+      documents.push({
         document_category: "government_id",
         document_type: 1,
         document_file: governmentId.newfileName,
-        document_number: id_number,
-      },
-      {
+        document_number: id_number || null,
+      });
+    }
+
+    if (files.selfie) {
+      const selfieWithId = await fileUploaderSingle(
+        IDENTITY_DOC_UPLOAD_PATH,
+        files.selfie
+      );
+
+      documents.push({
         document_category: "selfie",
         document_type: 2,
         document_file: selfieWithId.newfileName,
-      },
-    ];
+      });
+    }
 
-    if (addressProof) {
+    if (files.address_proof) {
+      const addressProof = await fileUploaderSingle(
+        IDENTITY_DOC_UPLOAD_PATH,
+        files.address_proof
+      );
+
       documents.push({
         document_category: "address_proof",
         document_type: 1,
@@ -145,7 +150,6 @@ export const uploadGuideIdentity = async (req, res) => {
       });
     }
 
-    // Call service
     const response = await createGuideIdentityService({
       guideId,
       documents,
@@ -165,6 +169,7 @@ export const uploadGuideIdentity = async (req, res) => {
       });
   }
 };
+
 
 export const uploadGuideLicenses = async (req, res) => {
   try {

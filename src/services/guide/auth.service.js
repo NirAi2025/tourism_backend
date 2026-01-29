@@ -359,12 +359,10 @@ export const createGuideIdentityService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Extract document categories from request
     const categories = documents
       .map((doc) => doc.document_category)
       .filter(Boolean);
 
-    // Delete existing documents for same guide + categories
     if (categories.length > 0) {
       await GuideIdentity.destroy({
         where: {
@@ -377,7 +375,6 @@ export const createGuideIdentityService = async (payload = {}) => {
       });
     }
 
-    // Prepare insert rows
     const rows = documents.map((doc) => ({
       guide_id: guideId,
       document_category: doc.document_category,
@@ -395,24 +392,28 @@ export const createGuideIdentityService = async (payload = {}) => {
       lock: transaction.LOCK.UPDATE,
     });
 
-    if (user && user.completed_steps < 7) {
+    let updatedSteps = user?.completed_steps;
+
+    if (user && user.completed_steps < 2) {
       await user.update(
         { completed_steps: 2 },
         { transaction }
       );
+      updatedSteps = 2;
     }
 
     await transaction.commit();
 
     return {
       message: "Identity documents submitted successfully",
-      completed_steps: user.completed_steps
+      completed_steps: user?.completed_steps || updatedSteps,
     };
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
+
 
 // step 3: guide license documents
 export const createGuideLicenseService = async (payload = {}) => {

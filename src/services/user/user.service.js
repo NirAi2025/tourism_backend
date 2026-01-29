@@ -1,4 +1,8 @@
 import {
+  Country,
+  City,
+  Language,
+  State,
   User,
   Role,
   Profile,
@@ -73,16 +77,54 @@ export const getAllUserService = async ({
 export const userDetailsByIdService = async (userId) => {
   const user = await User.findOne({
     where: { id: userId },
-    attributes: { exclude: ["password"] },
     include: [
-      { model: Role, as: "roles" },
-      { model: Profile, as: "profile" },
+      { model: Role, as: "roles", through: { attributes: [] } },
+      {
+        model: Profile,
+        as: "profile",
+        include: [
+          {
+            model: Country,
+            as: "nationality_country",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Country,
+            as: "tour_country",
+            attributes: ["id", "name"],
+          },
+          {
+            model: State,
+            as: "state",
+            attributes: ["id", "name"],
+          },
+          {
+            model: City,
+            as: "base_city",
+            attributes: ["id", "name"],
+          },
+        ],
+      },
       { model: GuideIdentity, as: "guide_identities" },
       { model: GuideLicense, as: "guide_licenses" },
       { model: GuideInsurance, as: "guide_insurance" },
-      { model: GuidePayoutAccount, as: "guide_payout_account" },
+      { 
+        model: GuidePayoutAccount, 
+        as: "guide_payout_account",
+        include: [
+          {
+            model: Country,
+            as: "tax_residency_country",
+            attributes: ["id", "name"],
+          },
+        ], 
+      },
       { model: GuidePublicProfile, as: "guide_public_profile" },
-      { model: GuideLanguage, as: "guide_languages" },
+      {
+        model: GuideLanguage,
+        as: "guide_languages",
+        include: [{ model: Language, attributes: ["id", "name"] }],
+      },
       { model: GuideCertification, as: "guide_certifications" },
     ],
   });
@@ -93,6 +135,7 @@ export const userDetailsByIdService = async (userId) => {
 
   const data = user.toJSON();
 
+  // File URL mapping
   if (data.guide_public_profile?.profile_photo) {
     data.guide_public_profile.profile_photo = withFileUrl(
       data.guide_public_profile.profile_photo,
@@ -107,6 +150,7 @@ export const userDetailsByIdService = async (userId) => {
   data.guide_licenses?.forEach(
     (l) => (l.document_file = withFileUrl(l.document_file, "identity-doc")),
   );
+
   if (data.guide_insurance?.insurance_document) {
     data.guide_insurance.insurance_document = withFileUrl(
       data.guide_insurance.insurance_document,
@@ -128,7 +172,10 @@ export const verifyGuideIdentityService = async (payload = {}) => {
   try {
     const { userId, guideId, documentId, status, remarks } = payload;
     if (![1, 2].includes(status)) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid verification status");
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Invalid verification status",
+      );
     }
     const guideIdentity = await GuideIdentity.findOne({
       where: {
@@ -164,7 +211,110 @@ export const verifyGuideIdentityService = async (payload = {}) => {
     await transaction.commit();
 
     return {
-      message: "Document verification status updated successfully"
+      message: "Document verification status updated successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+export const verifyGuideLicenseService = async (payload = {}) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const { userId, guideId, documentId, status, remarks } = payload;
+    if (![1, 2].includes(status)) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Invalid verification status",
+      );
+    }
+    const guideLicense = await GuideLicense.findOne({
+      where: {
+        id: documentId,
+        guide_id: guideId,
+      },
+      transaction,
+    });
+    if (!guideLicense) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        "Guide license document not found",
+      );
+    }
+    await guideLicense.update(
+      {
+        verification_status: status,
+        rejection_reason: status == 2 ? remarks : null,
+      },
+      { transaction },
+    );
+    // store data for log
+    await GuideVerification.create(
+      {
+        guide_id: guideId,
+        verified_by: userId,
+        verification_date: new Date(),
+        status: status,
+        remarks: remarks,
+      },
+      { transaction },
+    );
+    await transaction.commit();
+
+    return {
+      message: "Document verification status updated successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+export const verifyOverallGuideAccountService = async (payload = {}) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const { userId, guideId, status, remarks } = payload;
+    if (![1, 2].includes(status)) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Invalid verification status",
+      );
+    }
+    const user = await User.findByPk(guideId, {
+      include: [
+        {
+          model: Role,
+          where: { slug: "guide" },
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Guide not found");
+    }
+
+    await user.update({
+      is_verified: status,
+    });
+    // store data for log
+    await GuideVerification.create(
+      {
+        guide_id: guideId,
+        verified_by: userId,
+        verification_date: new Date(),
+        status: status,
+        remarks: remarks,
+      },
+      { transaction },
+    );
+    await transaction.commit();
+
+    return {
+      message: "Guide account status updated based on document verifications",
     };
   } catch (error) {
     await transaction.rollback();
