@@ -10,7 +10,7 @@ export async function up(queryInterface, Sequelize) {
     },
     tour_id: {
       type: Sequelize.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },

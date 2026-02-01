@@ -23,12 +23,7 @@ export async function up(queryInterface, Sequelize) {
     updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.fn('NOW'),
-    },
-    deleted_at: {
-      type: Sequelize.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
+    }
   });
 }
 export async function down(queryInterface, Sequelize) {

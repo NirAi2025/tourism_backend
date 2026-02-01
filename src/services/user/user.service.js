@@ -108,8 +108,8 @@ export const userDetailsByIdService = async (userId) => {
       { model: GuideIdentity, as: "guide_identities" },
       { model: GuideLicense, as: "guide_licenses" },
       { model: GuideInsurance, as: "guide_insurance" },
-      { 
-        model: GuidePayoutAccount, 
+      {
+        model: GuidePayoutAccount,
         as: "guide_payout_account",
         include: [
           {
@@ -117,7 +117,7 @@ export const userDetailsByIdService = async (userId) => {
             as: "tax_residency_country",
             attributes: ["id", "name"],
           },
-        ], 
+        ],
       },
       { model: GuidePublicProfile, as: "guide_public_profile" },
       {
@@ -277,13 +277,17 @@ export const verifyOverallGuideAccountService = async (payload = {}) => {
 
   try {
     const { userId, guideId, status, remarks } = payload;
-    if (![1, 2].includes(status)) {
+
+    const verificationStatus = Number(status);
+    if (![1, 2].includes(verificationStatus)) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "Invalid verification status",
       );
     }
-    const user = await User.findByPk(guideId, {
+
+    const guideExists = await User.count({
+      where: { id: guideId },
       include: [
         {
           model: Role,
@@ -291,30 +295,44 @@ export const verifyOverallGuideAccountService = async (payload = {}) => {
           through: { attributes: [] },
         },
       ],
+      transaction,
     });
 
-    if (!user) {
+    if (!guideExists) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Guide not found");
     }
 
-    await user.update({
-      is_verified: status,
-    });
-    // store data for log
+    const [updatedRows] = await User.update(
+      { is_verified: verificationStatus },
+      {
+        where: { id: guideId },
+        transaction,
+      },
+    );
+    console.log("updatedRows", updatedRows);
+    if (updatedRows == 0) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        "Failed to update guide verification status",
+      );
+    }
+
     await GuideVerification.create(
       {
         guide_id: guideId,
         verified_by: userId,
+        status: verificationStatus,
+        remarks,
         verification_date: new Date(),
-        status: status,
-        remarks: remarks,
       },
       { transaction },
     );
+
     await transaction.commit();
 
     return {
-      message: "Guide account status updated based on document verifications",
+      success: true,
+      message: "Guide account status updated successfully",
     };
   } catch (error) {
     await transaction.rollback();

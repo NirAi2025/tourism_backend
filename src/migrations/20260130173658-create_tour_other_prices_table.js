@@ -1,13 +1,13 @@
 'use strict';
 
+
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('tour_languages', {
+  await queryInterface.createTable('tour_other_prices', {
     id: {
-      allowNull: false,
+      type: Sequelize.BIGINT,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.BIGINT,
     },
     tour_id: {
       type: Sequelize.BIGINT,
@@ -15,17 +15,25 @@ export async function up(queryInterface, Sequelize) {
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },
-    language_id: {
-      type: Sequelize.BIGINT,
+    start_at: {
+      type: Sequelize.DATE,
       allowNull: true,
-      references: { model: 'languages', key: 'id' },
-      onDelete: 'CASCADE',
     },
-    is_live_guide: {
-      type: Sequelize.BOOLEAN,
+    end_at: {
+      type: Sequelize.DATE,
       allowNull: true,
-      defaultValue: false,
-      comment: 'Indicates if live guide is available in this language',
+    },
+    override_price: {
+      type: Sequelize.DECIMAL(10, 2),
+      allowNull: true,
+    },
+    currency: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    reason: {
+      type: Sequelize.TEXT,
+      allowNull: true,
     },
     created_at: {
       type: Sequelize.DATE,
@@ -38,5 +46,5 @@ export async function up(queryInterface, Sequelize) {
   });
 }
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('tour_languages');
+  await queryInterface.dropTable('tour_other_prices');
 }

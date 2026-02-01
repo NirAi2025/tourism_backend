@@ -7,6 +7,7 @@ import {
     getCitiesByStateService,
     languagesService
 } from "../services/common.service.js";
+import { tourCategoriesService } from "../services/tour.service.js";
 
 export const getCountryCurrency = async (req, res) => {
   try {
@@ -101,3 +102,25 @@ export const languages = async (req, res) => {
     });
   }
 }
+
+export const tourCategories = async (req, res) => {
+  try {
+    const { category_id = null, filter = null} = req.query;
+
+    const payload = {
+      category_id: category_id ? Number(category_id) : null,
+      filter
+    };
+
+    const result = await tourCategoriesService(payload);
+
+    return res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+  }
+};

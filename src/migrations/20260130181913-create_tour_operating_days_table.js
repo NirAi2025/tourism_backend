@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('tour_languages', {
+  await queryInterface.createTable('tour_operating_days', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -15,17 +15,10 @@ export async function up(queryInterface, Sequelize) {
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },
-    language_id: {
-      type: Sequelize.BIGINT,
-      allowNull: true,
-      references: { model: 'languages', key: 'id' },
-      onDelete: 'CASCADE',
-    },
-    is_live_guide: {
-      type: Sequelize.BOOLEAN,
-      allowNull: true,
-      defaultValue: false,
-      comment: 'Indicates if live guide is available in this language',
+    day_of_week: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      comment: '1=Sunday, 2=Monday, ..., 7=Saturday',
     },
     created_at: {
       type: Sequelize.DATE,
@@ -38,5 +31,5 @@ export async function up(queryInterface, Sequelize) {
   });
 }
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('tour_languages');
+  await queryInterface.dropTable('tour_operating_days');
 }

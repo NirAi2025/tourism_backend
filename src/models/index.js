@@ -24,6 +24,23 @@ import GuideLicense from "./guideLicence.model.js";
 import GuidePayoutAccount from "./guidePayoutAccount.model.js";
 import GuidePublicProfile from "./guidePublicProfile.model.js";
 import UserEmailVerification from "./userEmailVerification.model.js";
+import TourCategory from "./tourCategory.model.js";
+import Tour from "./tour.model.js";
+import Itinerary from "./itinerary.model.js";
+import TourSearchTag from "./tourSearchTag.model.js";
+import PriceType from "./priceType.model.js";
+import TourLanguage from "./tourLanguage.model.js";
+import TourMedia from "./tourMedia.model.js";
+import TourOperatingDay from "./tourOperatingDay.model.js";
+import TourOtherPrice from "./tourOtherPrice.model.js";
+import TourPolicy from "./tourPolicy.model.js";
+import TourPrice from "./tourPrice.model.js";
+import TourSafety from "./tourSafety.model.js";
+import TourStop from "./tourStop.model.js";
+import TourTag from "./tourTag.model.js";
+import TourTagMap from "./tourTagMap.model.js";
+import TourTicket from "./tourTicket.model.js";
+
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +113,51 @@ GuidePayoutAccount.belongsTo(Country, { foreignKey: "tax_residency_country_id", 
 GuidePublicProfile.belongsTo(User, { foreignKey: "guide_id" });
 User.hasOne(GuidePublicProfile, { foreignKey: "guide_id" });
 
+// --------------------------------------------------------------- tour associations---------------------------------------------------------------
+
+Tour.belongsTo(TourCategory, { foreignKey: "category_id", as: "category" });
+TourCategory.hasMany(Tour, { foreignKey: "category_id" });
+
+Tour.hasOne(Itinerary, { foreignKey: "tour_id", as: "itinerary" });
+Itinerary.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourStop, { foreignKey: "tour_id", as: "stops" });
+TourStop.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourSearchTag, { foreignKey: "tour_id", as: "searchTags" });
+TourSearchTag.belongsTo(Tour, { foreignKey: "tour_id"});
+
+// Tour.belongsToMany(TourTag, { through: TourTagMap, foreignKey: "tour_id", otherKey: "tag_id", as: "tags" });
+// TourTag.belongsToMany(Tour, { through: TourTagMap, foreignKey: "tag_id", otherKey: "tour_id" });
+
+Tour.hasMany(TourLanguage, { foreignKey: "tour_id", as: "languages" });
+TourLanguage.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourMedia, { foreignKey: "tour_id", as: "media" });
+TourMedia.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourOperatingDay, { foreignKey: "tour_id", as: "operatingDays" });
+TourOperatingDay.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasOne(TourPrice, { foreignKey: "tour_id", as: "pricing" });
+TourPrice.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourOtherPrice, { foreignKey: "tour_id", as: "otherPrices" });
+TourOtherPrice.belongsTo(Tour, { foreignKey: "tour_id" });
+
+TourPrice.belongsTo(PriceType, { foreignKey: "price_type_id", as: "priceType" });
+PriceType.hasMany(TourPrice, { foreignKey: "price_type_id" });
+
+Tour.hasOne(TourTicket, { foreignKey: "tour_id", as: "tickets" });
+TourTicket.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasOne(TourPolicy, { foreignKey: "tour_id", as: "policy" });
+TourPolicy.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasOne(TourSafety, { foreignKey: "tour_id", as: "safety" });
+TourSafety.belongsTo(Tour, { foreignKey: "tour_id" });
+
+
 export {
   sequelize,
   BlogType,
@@ -120,5 +182,23 @@ export {
   GuidePayoutAccount,
   GuidePublicProfile,
   GuideCertification,
-  GuideLanguage
+  GuideLanguage,
+  GuideVerification,
+  GuideBankInfo,
+  TourCategory,
+  Tour,
+  Itinerary,
+  TourSearchTag,
+  PriceType,
+  TourLanguage,
+  TourMedia,
+  TourOperatingDay,
+  TourOtherPrice,
+  TourPolicy,
+  TourPrice,
+  TourSafety,
+  TourStop,
+  TourTag,
+  TourTagMap,
+  TourTicket
 };

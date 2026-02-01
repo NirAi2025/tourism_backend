@@ -10,7 +10,7 @@ export async function up(queryInterface, Sequelize) {
     },
     tour_id: {
       type: Sequelize.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },
@@ -23,6 +23,7 @@ export async function up(queryInterface, Sequelize) {
     price: {
       type: Sequelize.DECIMAL(10, 2),
       allowNull: true,
+      comment: 'Regular price',
     },
     currency: {
       type: Sequelize.STRING,

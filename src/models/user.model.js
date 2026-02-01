@@ -67,7 +67,12 @@ const User = sequelize.define(
       type: DataTypes.TINYINT,
       defaultValue: 1, // 1: active, 0: inactive
       comment: "1: active, 0: inactive",
-    }
+    },
+    is_verified: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0,
+      comment: "1: verified, 0: not verified/rejected, 2: pending",
+    },
   },
   {
     timestamps: true,

@@ -4,7 +4,7 @@
 export async function up(queryInterface, Sequelize) {
   await queryInterface.createTable('tour_tag_maps', {
     tour_id: {
-      type: Sequelize.BIGINT,
+      type: Sequelize.BIGINT.UNSIGNED, 
       allowNull: false,
       primaryKey: true,
       references: {
@@ -13,11 +13,10 @@ export async function up(queryInterface, Sequelize) {
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
-      comment: 'FK to tours table',
     },
-  
-    tag_id: { 
-      type: Sequelize.BIGINT,
+
+    tag_id: {
+      type: Sequelize.BIGINT.UNSIGNED, 
       allowNull: false,
       primaryKey: true,
       references: {
@@ -26,10 +25,10 @@ export async function up(queryInterface, Sequelize) {
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
-      comment: 'FK to tags table',
     },
   });
 }
-export async function down(queryInterface, Sequelize) {
+
+export async function down(queryInterface) {
   await queryInterface.dropTable('tour_tag_maps');
 }

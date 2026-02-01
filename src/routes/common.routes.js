@@ -5,7 +5,9 @@ import {
   getStatesByCountry,
   getCitiesByState,
   languages,
+  tourCategories
 } from "../controllers/common.controller.js";
+
 
 const router = express.Router();
 
@@ -79,5 +81,25 @@ router.get("/states/:countryId", getStatesByCountry);
  *       404: { description: Cities not found }
  */
 router.get("/cities/:stateId", getCitiesByState);
+
+/**
+ * @swagger
+ * /tour-categories:
+ *   get:
+ *     summary: Get tour categories
+ *     tags: [Common]
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: category_id
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: filter
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Tour categories list }
+ *       404: { description: Category not found }
+ */
+router.get("/tour-categories", tourCategories);
 
 export default router;

@@ -10,7 +10,7 @@ export async function up(queryInterface, Sequelize) {
     },
     tour_id: {
       type: Sequelize.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },
@@ -25,7 +25,7 @@ export async function up(queryInterface, Sequelize) {
     duration: {
       type: Sequelize.STRING,
       allowNull: true,
-      Comment: 'duration in minutes',
+      Comment: 'duration in minutes on per stop basis',
     },
     order: {
       type: Sequelize.INTEGER,

@@ -30,6 +30,11 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
     },
 
+    whatsapp_number: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+
     password: {
       type: Sequelize.STRING,
       allowNull: true,
@@ -56,6 +61,10 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
       defaultValue: null,
     },
+    language_id: {
+      type: Sequelize.BIGINT,
+      allowNull: true
+    },  
 
     fcm_token: {
       type: Sequelize.TEXT('long'),
@@ -78,6 +87,12 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.TINYINT,
       defaultValue: 1,
       comment: '1: active, 0: inactive',
+    },
+
+    is_verified: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      comment: '1: verified, 0: not verified, 2: pending',
     },
 
     created_at: {

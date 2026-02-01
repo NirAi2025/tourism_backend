@@ -1,22 +1,48 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  },
-
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-  }
-};
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.createTable('tour_safeties', {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.BIGINT,
+    },
+    tour_id: {
+      type: Sequelize.BIGINT,
+      allowNull: true,
+      references: { model: 'tours', key: 'id' },
+      onDelete: 'CASCADE',
+    },
+    safety_instructions: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    fitness_requirements: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    permit_declared: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    },
+    insurance_declared: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    },
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.fn('NOW'),
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.fn('NOW'),
+    }
+  });
+}
+export async function down(queryInterface, Sequelize) {
+  await queryInterface.dropTable('tour_safeties');
+}
