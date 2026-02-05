@@ -40,6 +40,7 @@ import TourStop from "./tourStop.model.js";
 import TourTag from "./tourTag.model.js";
 import TourTagMap from "./tourTagMap.model.js";
 import TourTicket from "./tourTicket.model.js";
+import TourAvailability from "./tourAvailability.model.js";
 
 
 /*
@@ -115,8 +116,8 @@ User.hasOne(GuidePublicProfile, { foreignKey: "guide_id" });
 
 // --------------------------------------------------------------- tour associations---------------------------------------------------------------
 
-Tour.belongsTo(TourCategory, { foreignKey: "category_id", as: "category" });
-TourCategory.hasMany(Tour, { foreignKey: "category_id" });
+Tour.belongsTo(TourCategory, { foreignKey: "tour_category_id", as: "category" });
+TourCategory.hasMany(Tour, { foreignKey: "tour_category_id" });
 
 Tour.hasOne(Itinerary, { foreignKey: "tour_id", as: "itinerary" });
 Itinerary.belongsTo(Tour, { foreignKey: "tour_id" });
@@ -156,6 +157,9 @@ TourPolicy.belongsTo(Tour, { foreignKey: "tour_id" });
 
 Tour.hasOne(TourSafety, { foreignKey: "tour_id", as: "safety" });
 TourSafety.belongsTo(Tour, { foreignKey: "tour_id" });
+
+Tour.hasMany(TourAvailability, { foreignKey: "tour_id", as: "availabilities" });
+TourAvailability.belongsTo(Tour, { foreignKey: "tour_id" });
 
 
 export {
@@ -200,5 +204,6 @@ export {
   TourStop,
   TourTag,
   TourTagMap,
-  TourTicket
+  TourTicket,
+  TourAvailability
 };

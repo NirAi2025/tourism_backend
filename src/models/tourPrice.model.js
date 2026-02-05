@@ -23,7 +23,7 @@ const TourPrice = sequelize.define(
       onDelete: "SET NULL",
       comment: "FK to price_types table",
     },
-    amount: {
+    price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
     },
@@ -44,6 +44,7 @@ const TourPrice = sequelize.define(
   {
     timestamps: true,
     paranoid: false,
+    underscored: true
   }
 );
 

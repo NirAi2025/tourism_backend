@@ -127,6 +127,14 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.ENUM('EASY', 'MODERATE', 'HARD'),
       allowNull: true,
     },
+    season_start_date: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
+    season_end_date: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
     age_min: {
       type: Sequelize.INTEGER,
       allowNull: true,

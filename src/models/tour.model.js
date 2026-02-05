@@ -128,6 +128,14 @@ const Tour = sequelize.define(
       type: DataTypes.ENUM("EASY", "MODERATE", "HARD"),
       allowNull: true,
     },
+    season_start_date: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    season_end_date: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     age_min: {
       type: DataTypes.INTEGER,
       allowNull: true,

@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-const TourStop = sequelize.define(
-  "tour_stops",
+const TourAvailability = sequelize.define(
+  "tour_availabilities",
   {
     id: {
       type: DataTypes.BIGINT,
@@ -16,29 +16,32 @@ const TourStop = sequelize.define(
       onDelete: "CASCADE",
       comment: "FK to tours table",
     },
-    stop_name: {
-      type: DataTypes.TEXT,
+    available_date: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    duration: {
+    start_time: {
       type: DataTypes.STRING,
       allowNull: true,
-      comment: "duration in minutes on per stop basis",
     },
-    order: {
+    total_capacity: {
       type: DataTypes.INTEGER,
       allowNull: true,
+    },
+    booked_capacity: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    is_blocked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
     },
   },
   {
     timestamps: true,
-    paranoid: false,
-    underscored: true
-  }
+    underscored: true,
+  },
 );
 
-export default TourStop;
+export default TourAvailability;

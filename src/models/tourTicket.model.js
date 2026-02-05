@@ -46,6 +46,7 @@ const TourTicket = sequelize.define(
   {
     timestamps: true,
     paranoid: false,
+    underscored: true
   }
 );
 
