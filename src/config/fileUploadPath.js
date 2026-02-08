@@ -37,6 +37,10 @@ export const PROFILE_IMG_UPLOAD_PATH = path.join(
   UPLOAD_BASE_PATH,
   "profile"
 );
+export const TOUR_IMG_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "tour"
+);
 
 export const withFileUrl = (fileName, folder) => {
   if (!fileName) return null;

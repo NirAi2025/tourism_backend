@@ -123,8 +123,22 @@ export async function up(queryInterface, Sequelize) {
       allowNull: true,
       defaultValue: true,
     },
+    skip_the_line_access: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+      comment: '0: No, 1: Yes',
+    },
     difficulty_level: {
       type: Sequelize.ENUM('EASY', 'MODERATE', 'HARD'),
+      allowNull: true,
+    },
+    accessibility_options : {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+    not_suitable_for: {
+      type: Sequelize.TEXT,
       allowNull: true,
     },
     season_start_date: {
@@ -141,6 +155,18 @@ export async function up(queryInterface, Sequelize) {
     },
     age_max: {
       type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    what_to_bring: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+    dress_code: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+    important_notes: {
+      type: Sequelize.TEXT,
       allowNull: true,
     },
     seo_title: {

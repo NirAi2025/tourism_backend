@@ -24,6 +24,7 @@ const TourSearchTag = sequelize.define(
   {
     timestamps: true,
     paranoid: false,
+    underscored: true
   }
 );
 

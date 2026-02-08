@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-const TourLanguage = sequelize.define(
-  "tour_languages",
+const TourInclusionExclusion = sequelize.define(
+  "tour_inclusion_exclusions",
   {
     id: {
       type: DataTypes.BIGINT,
@@ -16,24 +16,23 @@ const TourLanguage = sequelize.define(
       onDelete: "CASCADE",
       comment: "FK to tours table",
     },
-    language_id: {
-      type: DataTypes.BIGINT,
+    included: {
+      type: DataTypes.TEXT,
       allowNull: true,
-      references: { model: "languages", key: "id" },
-      onDelete: "CASCADE",
-      comment: "FK to languages table",
     },
-    is_live_guide: {
-      type: DataTypes.BOOLEAN,
+    excluded: {
+      type: DataTypes.TEXT,
       allowNull: true,
-      defaultValue: true,
+    },
+    optional_addons: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   },
   {
     timestamps: true,
     paranoid: false,
-    underscored: true
+    underscored: true,
   },
 );
-
-export default TourLanguage;
+export default TourInclusionExclusion;

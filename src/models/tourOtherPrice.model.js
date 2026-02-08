@@ -40,7 +40,8 @@ const TourOtherPrice = sequelize.define(
   },
   {
     timestamps: true,
-    paranoid: false,    
+    paranoid: false,  
+    underscored: true  
   }
 );
 

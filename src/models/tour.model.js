@@ -124,8 +124,21 @@ const Tour = sequelize.define(
       allowNull: true,
       defaultValue: true,
     },
+    skip_the_line_access: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+    },
     difficulty_level: {
       type: DataTypes.ENUM("EASY", "MODERATE", "HARD"),
+      allowNull: true,
+    },
+    accessibility_options: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    not_suitable_for: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     season_start_date: {
@@ -142,6 +155,18 @@ const Tour = sequelize.define(
     },
     age_max: {
       type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    what_to_bring: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    dress_code: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    important_notes: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     seo_title: {

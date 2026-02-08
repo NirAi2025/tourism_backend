@@ -28,6 +28,7 @@ const PriceType = sequelize.define(
   {
     timestamps: true,
     paranoid: false,
+    underscored: true,
   }
 );
 

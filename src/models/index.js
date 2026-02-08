@@ -41,6 +41,7 @@ import TourTag from "./tourTag.model.js";
 import TourTagMap from "./tourTagMap.model.js";
 import TourTicket from "./tourTicket.model.js";
 import TourAvailability from "./tourAvailability.model.js";
+import TourInclusionExclusion from "./tourInclusionExclusion.model.js";
 
 
 /*
@@ -161,6 +162,9 @@ TourSafety.belongsTo(Tour, { foreignKey: "tour_id" });
 Tour.hasMany(TourAvailability, { foreignKey: "tour_id", as: "availabilities" });
 TourAvailability.belongsTo(Tour, { foreignKey: "tour_id" });
 
+TourInclusionExclusion.belongsTo(Tour, { foreignKey: "tour_id" });
+Tour.hasOne(TourInclusionExclusion, { foreignKey: "tour_id" });
+
 
 export {
   sequelize,
@@ -205,5 +209,6 @@ export {
   TourTag,
   TourTagMap,
   TourTicket,
-  TourAvailability
+  TourAvailability,
+  TourInclusionExclusion
 };
