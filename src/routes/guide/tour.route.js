@@ -11,7 +11,8 @@ import {
     createTourStepEight,
     createTourStepNine,
     createTourStepTen,
-    createTourStepEleven
+    createTourStepEleven,
+    myTourProducts
 } from "../../controllers/guide/tour.controller.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
 
@@ -510,5 +511,36 @@ router.post("/create-tour-step-ten", authenticateToken, createTourStepTen);
  *         description: Internal server error
  */
 router.post("/create-tour-step-eleven", authenticateToken, createTourStepEleven);
+
+/**
+ * @swagger
+ * /guide/tours/my-tours:
+ *   get:
+ *     summary: Get logged-in user's tours (paginated)
+ *     tags: [Guide Tours]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Number of records per page
+ *     responses:
+ *       200:
+ *         description: My tours fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get("/my-tours", authenticateToken, myTourProducts);
 
 export default router;

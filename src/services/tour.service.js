@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../utils/ApiError.js";
 import sequelize from "../config/database.js";
-import { 
+import {
   Tour,
   TourCategory,
   TourLanguage,
@@ -18,7 +18,10 @@ import {
   TourOperatingDay,
   TourAvailability,
   TourInclusionExclusion,
-  TourSearchTag
+  TourSearchTag,
+  Country,
+  State,
+  City,
 } from "../models/index.js";
 
 export const tourCategoriesService = async (payload = {}) => {
@@ -99,24 +102,24 @@ export const createTourStepOneService = async (payload = {}) => {
         place,
         completed_steps: 1,
       },
-      { transaction }
+      { transaction },
     );
     if (tags.length > 0) {
       console.log("tags", tags);
-      
+
       const tagRecords = await Promise.all(
         tags.map((tag) =>
           TourTag.findOrCreate({
             where: typeof tag == "string" ? { name: tag } : { id: tag },
             defaults: typeof tag == "string" ? { name: tag } : {},
             transaction,
-          })
-        )
+          }),
+        ),
       );
 
       const tagIds = tagRecords.map(([tag]) => tag.id);
       console.log("tag_ids", tagIds);
-      
+
       const tourTagMaps = tagIds.map((tag_id) => ({
         tour_id: tour.id,
         tag_id,
@@ -143,19 +146,25 @@ export const createTourStepOneService = async (payload = {}) => {
 
 // tour creation step 2
 export const createTourStepTwoService = async (payload = {}) => {
-  const { tour_id, full_description, what_you_will_do, key_highlights, unique_points } = payload;
-  console.log("payload",payload);
-  
+  const {
+    tour_id,
+    full_description,
+    what_you_will_do,
+    key_highlights,
+    unique_points,
+  } = payload;
+  console.log("payload", payload);
+
   const transaction = await sequelize.transaction();
 
   try {
     // find tour
-    const tour = await Tour.findByPk(tour_id,{ transaction });
-    
+    const tour = await Tour.findByPk(tour_id, { transaction });
+
     if (!tour) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
     }
-    
+
     await Tour.update(
       {
         full_description,
@@ -167,7 +176,7 @@ export const createTourStepTwoService = async (payload = {}) => {
       {
         where: { id: tour_id },
         transaction,
-      }
+      },
     );
 
     await transaction.commit();
@@ -176,7 +185,7 @@ export const createTourStepTwoService = async (payload = {}) => {
       success: true,
       message: "Tour updated successfully",
       data: {
-        tour_id:tour.id,
+        tour_id: tour.id,
         completed_steps: 2,
       },
     };
@@ -186,7 +195,7 @@ export const createTourStepTwoService = async (payload = {}) => {
   }
 };
 
-// tour creation step 3 
+// tour creation step 3
 export const createTourStepThreeService = async (payload = {}) => {
   const {
     tour_id,
@@ -208,9 +217,9 @@ export const createTourStepThreeService = async (payload = {}) => {
     const [itinerary] = await Itinerary.upsert(
       {
         tour_id,
-        overview
+        overview,
       },
-      { transaction }
+      { transaction },
     );
 
     // 3. Remove old stops (important for edit flow)
@@ -239,7 +248,7 @@ export const createTourStepThreeService = async (payload = {}) => {
       {
         where: { id: tour_id },
         transaction,
-      }
+      },
     );
 
     await transaction.commit();
@@ -260,15 +269,15 @@ export const createTourStepThreeService = async (payload = {}) => {
 
 // tour creation step 4
 export const createTourStepFourService = async (payload = {}) => {
-  const { 
-    tour_id, 
-    meeting_point_name, 
-    meeting_point_address, 
-    meeting_point_latitude, 
-    meeting_point_longitude, 
+  const {
+    tour_id,
+    meeting_point_name,
+    meeting_point_address,
+    meeting_point_latitude,
+    meeting_point_longitude,
     end_point,
     pickup_offered,
-    pickup_details 
+    pickup_details,
   } = payload;
 
   const transaction = await sequelize.transaction();
@@ -296,7 +305,7 @@ export const createTourStepFourService = async (payload = {}) => {
       {
         where: { id: tour_id },
         transaction,
-      }
+      },
     );
 
     await transaction.commit();
@@ -313,7 +322,7 @@ export const createTourStepFourService = async (payload = {}) => {
     await transaction.rollback();
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
-}
+};
 
 // tour creation step 5
 export const createTourStepFiveService = async (payload = {}) => {
@@ -351,7 +360,7 @@ export const createTourStepFiveService = async (payload = {}) => {
         is_private_tour: true,
         completed_steps: 5,
       },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     // 3. Reset operating days
@@ -423,6 +432,7 @@ export const createTourStepFiveService = async (payload = {}) => {
   }
 };
 
+// tour creation step 6
 export const createTourStepSixService = async (payload = {}) => {
   const {
     tour_id,
@@ -454,7 +464,7 @@ export const createTourStepSixService = async (payload = {}) => {
           price,
           currency,
         },
-        { transaction }
+        { transaction },
       );
     }
 
@@ -472,14 +482,14 @@ export const createTourStepSixService = async (payload = {}) => {
           infant_price,
           currency,
         },
-        { transaction }
+        { transaction },
       );
     }
 
     // 4. Mark step completed
     await Tour.update(
       { completed_steps: 6 },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     await transaction.commit();
@@ -496,20 +506,21 @@ export const createTourStepSixService = async (payload = {}) => {
     await transaction.rollback();
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
-}
+};
 
+// tour creation step 7
 export const createTourStepSevenService = async (payload = {}) => {
-  const { 
+  const {
     tour_id,
     included,
-    excluded, 
+    excluded,
     optional_addons = null,
     skip_the_line_access = null,
     difficulty_level,
     age_min,
     age_max,
     accessibility_options = null,
-    not_suitable_for = null 
+    not_suitable_for = null,
   } = payload;
 
   const transaction = await sequelize.transaction();
@@ -530,7 +541,7 @@ export const createTourStepSevenService = async (payload = {}) => {
         excluded,
         optional_addons,
       },
-      { transaction }
+      { transaction },
     );
     const accessibilityOptions = Array.isArray(accessibility_options)
       ? accessibility_options.join(",")
@@ -541,16 +552,16 @@ export const createTourStepSevenService = async (payload = {}) => {
       : null;
     // 4. update restriction section and Mark step completed
     await Tour.update(
-      { 
+      {
         skip_the_line_access,
         difficulty_level,
         accessibility_options: accessibilityOptions,
         not_suitable_for: notSuitableFor,
         age_min,
         age_max,
-        completed_steps: 7 
+        completed_steps: 7,
       },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     await transaction.commit();
@@ -567,7 +578,8 @@ export const createTourStepSevenService = async (payload = {}) => {
     await transaction.rollback();
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
-}
+};
+// tour creation step 8
 export const createTourStepEightService = async (payload = {}) => {
   const {
     tour_id,
@@ -615,14 +627,14 @@ export const createTourStepEightService = async (payload = {}) => {
         permit_declared,
         insurance_declared,
       },
-      { transaction }
-    )
+      { transaction },
+    );
     // 3. Update tour table
     await Tour.update(
       {
         completed_steps: 8,
       },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     await transaction.commit();
@@ -640,6 +652,8 @@ export const createTourStepEightService = async (payload = {}) => {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
+
+// tour creation step 9
 export const createTourStepNineService = async (payload = {}) => {
   const {
     tour_id,
@@ -661,7 +675,7 @@ export const createTourStepNineService = async (payload = {}) => {
     if (!image_rights_confirmation) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        "Image rights confirmation is required"
+        "Image rights confirmation is required",
       );
     }
 
@@ -675,10 +689,7 @@ export const createTourStepNineService = async (payload = {}) => {
 
     // 3. Cover image (required)
     if (!cover_image) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        "Cover image is required"
-      );
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Cover image is required");
     }
 
     mediaRows.push({
@@ -716,7 +727,7 @@ export const createTourStepNineService = async (payload = {}) => {
     // 7. Update completed step
     await Tour.update(
       { completed_steps: 9 },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     await transaction.commit();
@@ -733,10 +744,12 @@ export const createTourStepNineService = async (payload = {}) => {
     await transaction.rollback();
     throw new ApiError(
       error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message
+      error.message,
     );
   }
 };
+
+// tour creation step 10
 export const createTourStepTenService = async (payload = {}) => {
   const {
     tour_id,
@@ -770,9 +783,9 @@ export const createTourStepTenService = async (payload = {}) => {
         cancellation_policy,
         cancellation_cutoff,
         no_show_policy,
-        weather_policy
+        weather_policy,
       },
-      { transaction }
+      { transaction },
     );
 
     // 3. Update customer preparation on tour table
@@ -786,7 +799,7 @@ export const createTourStepTenService = async (payload = {}) => {
       {
         where: { id: tour_id },
         transaction,
-      }
+      },
     );
 
     await transaction.commit();
@@ -801,18 +814,17 @@ export const createTourStepTenService = async (payload = {}) => {
     };
   } catch (error) {
     await transaction.rollback();
-    throw new ApiError(
-      StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message
-    );
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
+
+// tour creation step 11
 export const createTourStepElevenService = async (payload = {}) => {
   const {
     tour_id,
     seo_title = null,
     seo_description = null,
-    search_tags = []
+    search_tags = [],
   } = payload;
 
   const transaction = await sequelize.transaction();
@@ -828,13 +840,13 @@ export const createTourStepElevenService = async (payload = {}) => {
     if (Array.isArray(search_tags)) {
       await TourSearchTag.destroy({
         where: { tour_id },
-        transaction
+        transaction,
       });
 
       if (search_tags.length > 0) {
-        const tagRows = search_tags.map(tag => ({
+        const tagRows = search_tags.map((tag) => ({
           tour_id,
-          tag
+          tag,
         }));
 
         await TourSearchTag.bulkCreate(tagRows, { transaction });
@@ -846,12 +858,12 @@ export const createTourStepElevenService = async (payload = {}) => {
       {
         seo_title,
         seo_description,
-        completed_steps: 11
+        completed_steps: 11,
       },
       {
         where: { id: tour_id },
-        transaction
-      }
+        transaction,
+      },
     );
 
     await transaction.commit();
@@ -861,15 +873,160 @@ export const createTourStepElevenService = async (payload = {}) => {
       message: "SEO & internal metadata saved successfully",
       data: {
         tour_id,
-        completed_steps: 11
-      }
+        completed_steps: 11,
+      },
     };
   } catch (error) {
     await transaction.rollback();
-    throw new ApiError(
-      StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message
-    );
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
+export const myTourProductsService = async ({
+  user_id,
+  page = 1,
+  limit = 10,
+} = {}) => {
+  try {
+    const pageNumber = Math.max(parseInt(page, 10), 1);
+    const pageSize = Math.min(parseInt(limit, 10), 50);
+    const offset = (pageNumber - 1) * pageSize;
+
+    const { rows, count } = await Tour.findAndCountAll({
+      where: { guide_id: user_id },
+      limit: pageSize,
+      offset,
+      distinct: true,
+      include: [
+        {
+          model: TourCategory,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Country,
+          as: "tour_country",
+          attributes: ["id", "name"],
+        },
+        {
+          model: State,
+          as: "tour_state",
+          attributes: ["id", "name"],
+        },
+        {
+          model: City,
+          as: "tour_city",
+          attributes: ["id", "name"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    return {
+      success: true,
+      message: "My tours fetched successfully",
+      data: {
+        tours: rows,
+      },
+      pagination: {
+        totalRecords: count,
+        totalPages: Math.ceil(count / pageSize),
+        currentPage: pageNumber,
+        pageSize,
+      },
+    };
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+export const myTourProductDetailsService = async (id) => {
+  try {
+    const tour = await Tour.findByPk(id, {
+      include: [
+        {
+          model: TourCategory,
+          as: "category",
+        },
+        {
+          model: Country,
+          as: "tour_country",
+        },
+        {
+          model: State,
+          as: "tour_state",
+        },
+        {
+          model: City,
+          as: "tour_city",
+        },
+        {
+          model: TourTagMap,
+          as: "tags",
+          include: [
+            {
+              model: TourTag,
+              as: "tag",
+            },
+          ],
+        },
+        {
+          model: Itinerary,
+          as: "itinerary",
+        },
+        {
+          model: TourStop,
+          as: "stops",
+        },
+        {
+          model: TourOperatingDay,
+          as: "operating_days",
+        },
+        {
+          model: TourAvailability,
+          as: "availability",
+        },
+        {
+          model: TourPrice,
+          as: "prices",
+        },
+        {
+          model: TourTicket,
+          as: "tickets",
+        },
+        {
+          model: TourInclusionExclusion,
+          as: "inclusion_exclusion",
+        },
+        {
+          model: TourLanguage,
+          as: "tour_languages",
+          include: [
+            {
+              model: Language,
+              as: "language",
+            },
+          ],
+        },
+        {
+          model: TourSafety,
+          as: "tour_safety",
+        },
+        {
+          model: TourMedia,
+          as: "tour_media",
+        },
+        {
+          model: TourPolicy,
+          as: "tour_policies",
+        },
+        {
+          model: TourSearchTag,
+          as: "search_tags",
+        },
+      ],
+    });
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};

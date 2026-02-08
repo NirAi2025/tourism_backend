@@ -12,7 +12,9 @@ import {
   createTourStepEightService,
   createTourStepNineService,
   createTourStepTenService,
-  createTourStepElevenService
+  createTourStepElevenService,
+  myTourProductsService,
+  myTourProductDetailsService
 } from "../../services/tour.service.js";
 import {
   TOUR_IMG_UPLOAD_PATH
@@ -282,6 +284,32 @@ export const createTourStepEleven = async (req, res) => {
       success: true,
       message: result.message,
       data: result.data,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+  }
+};
+
+export const myTourProducts = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { page, limit } = req.query;
+    const result = await myTourProductsService({
+      user_id,
+      page,
+      limit,
+    });
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (error) {
     return res

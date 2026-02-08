@@ -165,6 +165,10 @@ TourAvailability.belongsTo(Tour, { foreignKey: "tour_id" });
 TourInclusionExclusion.belongsTo(Tour, { foreignKey: "tour_id" });
 Tour.hasOne(TourInclusionExclusion, { foreignKey: "tour_id" });
 
+Tour.belongsTo(Country, { foreignKey: "country_id", as: "tour_country" });
+Tour.belongsTo(State, { foreignKey: "state_id", as: "tour_state" });
+Tour.belongsTo(City, { foreignKey: "city_id", as: "tour_city" });
+
 
 export {
   sequelize,
