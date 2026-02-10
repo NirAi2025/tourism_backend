@@ -157,7 +157,7 @@ router.post("/create-tour-step-four", authenticateToken, createTourStepFour);
  * @swagger
  * /guide/tours/create-tour-step-five:
  *   post:
- *     summary: Create or update tour duration, operating days and availability (step 5)
+ *     summary: Create or update tour duration, timing and availability (Step 5)
  *     tags: [Guide Tours]
  *     security:
  *       - bearerAuth: []
@@ -167,36 +167,72 @@ router.post("/create-tour-step-four", authenticateToken, createTourStepFour);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [
- *               tour_id,
- *               duration,
- *               duration_type,
- *               start_times,
- *               operating_days,
- *               minimum_travelers,
- *               maximum_group_size
- *             ]
+ *             required:
+ *               - tour_id
+ *               - duration
+ *               - duration_type
+ *               - operating_time_slots
+ *               - minimum_travelers
+ *               - maximum_group_size
  *             properties:
- *               tour_id: { type: integer }
- *               duration: { type: integer }
+ *               tour_id:
+ *                 type: integer
+ *                 example: 101
+ *
+ *               duration:
+ *                 type: integer
+ *                 example: 4
+ *
  *               duration_type:
  *                 type: string
  *                 enum: [HOURS, DAYS, MINUTES]
- *               start_times:
+ *                 example: HOURS
+ *
+ *               operating_time_slots:
  *                 type: array
- *                 items: { type: string }
- *               operating_days:
- *                 type: array
- *                 description: Weekdays (1=Sunday, 2=Monday, ..., 7=Saturday)
- *                 items: { type: integer }
- *               season_start_date: { type: string, format: date }
- *               season_end_date: { type: string, format: date }
- *               minimum_travelers: { type: integer }
- *               maximum_group_size: { type: integer }
+ *                 description: Weekly operating schedule with day-wise start times
+ *                 items:
+ *                   type: object
+ *                   required: [start_time, operating_day]
+ *                   properties:
+ *                     start_time:
+ *                       type: string
+ *                       example: "09:00"
+ *                       description: Tour start time (HH:mm)
+ *
+ *                     operating_day:
+ *                       type: integer
+ *                       example: 2
+ *                       description: >
+ *                         Day of week (1=Sunday, 2=Monday, ..., 7=Saturday)
+ *
+ *               season_start_date:
+ *                 type: string
+ *                 format: date
+ *                 example: "2026-03-01"
+ *                 description: Optional seasonal start date
+ *
+ *               season_end_date:
+ *                 type: string
+ *                 format: date
+ *                 example: "2026-10-31"
+ *                 description: Optional seasonal end date
+ *
+ *               minimum_travelers:
+ *                 type: integer
+ *                 example: 1
+ *
+ *               maximum_group_size:
+ *                 type: integer
+ *                 example: 10
+ *
  *     responses:
- *       200: { description: OK }
- *       404: { description: Tour not found }
- *       500: { description: Server error }
+ *       200:
+ *         description: Tour availability created or updated successfully
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Internal server error
  */
 
 router.post("/create-tour-step-five", authenticateToken, createTourStepFive);

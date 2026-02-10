@@ -330,25 +330,24 @@ export const createTourStepFiveService = async (payload = {}) => {
     tour_id,
     duration,
     duration_type,
-    start_times,
-    operating_days, // [1,2,3...7]
+    operating_time_slots, // [{ start_time, operating_day }]
     season_start_date,
     season_end_date,
     minimum_travelers,
     maximum_group_size,
   } = payload;
 
+  const AVAILABILITY_WINDOW_DAYS = 365;
   const transaction = await sequelize.transaction();
 
   try {
-    // 1. Find tour
+    // 1. Validate tour
     const tour = await Tour.findByPk(tour_id, { transaction });
-
     if (!tour) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
     }
 
-    // 2. Update tour rules
+    // 2. Update tour master
     await Tour.update(
       {
         duration,
@@ -360,51 +359,93 @@ export const createTourStepFiveService = async (payload = {}) => {
         is_private_tour: true,
         completed_steps: 5,
       },
-      { where: { id: tour_id }, transaction },
+      { where: { id: tour_id }, transaction }
     );
 
-    // 3. Reset operating days
-    await TourOperatingDay.destroy({
+    // 3. Reset operating days ONLY (availability is rolling now)
+    await TourOperatingDay.destroy({ where: { tour_id }, transaction });
+
+    // 4. Derive operating days
+    const uniqueOperatingDays = [
+      ...new Set(operating_time_slots.map((s) => s.operating_day)),
+    ];
+
+    await TourOperatingDay.bulkCreate(
+      uniqueOperatingDays.map((day) => ({
+        tour_id,
+        day_of_week: day,
+      })),
+      { transaction }
+    );
+
+    // 5. Group time slots by day
+    const timeSlotsByDay = {};
+    for (const { start_time, operating_day } of operating_time_slots) {
+      if (!timeSlotsByDay[operating_day]) {
+        timeSlotsByDay[operating_day] = [];
+      }
+      timeSlotsByDay[operating_day].push(start_time);
+    }
+
+    // 6. Determine generation window (IMPORTANT 🔥)
+
+    const today = new Date();
+
+    // Find last availability date (for rolling extension)
+    const lastAvailability = await TourAvailability.findOne({
       where: { tour_id },
+      order: [["available_date", "DESC"]],
       transaction,
     });
 
-    const operatingDayRows = operating_days.map((day) => ({
-      tour_id,
-      day_of_week: day, // 1–7
-    }));
+    const generationStartDate = lastAvailability
+      ? new Date(
+          new Date(lastAvailability.available_date).setDate(
+            new Date(lastAvailability.available_date).getDate() + 1
+          )
+        )
+      : season_start_date
+      ? new Date(season_start_date)
+      : today;
 
-    await TourOperatingDay.bulkCreate(operatingDayRows, { transaction });
+    let generationEndDate;
 
-    // 4. Reset availability
-    await TourAvailability.destroy({
-      where: { tour_id },
-      transaction,
-    });
+    if (season_end_date) {
+      generationEndDate = new Date(season_end_date);
+    } else {
+      generationEndDate = new Date(
+        new Date(generationStartDate).setDate(
+          generationStartDate.getDate() + AVAILABILITY_WINDOW_DAYS
+        )
+      );
+    }
 
-    // 5. Generate availability
+    if (generationStartDate > generationEndDate) {
+      await transaction.commit();
+      return { success: true, message: "Availability already up to date" };
+    }
+
+    // 7. Generate availability (idempotent-safe)
     const availabilityRows = [];
 
-    const startDate = new Date(season_start_date);
-    const endDate = new Date(season_end_date);
-
     for (
-      let d = new Date(startDate);
-      d <= endDate;
+      let d = new Date(generationStartDate);
+      d <= generationEndDate;
       d.setDate(d.getDate() + 1)
     ) {
-      const jsDay = d.getDay(); // 0–6 (Sun–Sat)
-      const dayOfWeek = jsDay == 0 ? 1 : jsDay + 1; // 1–7
+      const jsDay = d.getDay();
+      const dayOfWeek = jsDay === 0 ? 1 : jsDay + 1;
 
-      if (!operating_days.includes(dayOfWeek)) continue;
+      const slotsForDay = timeSlotsByDay[dayOfWeek];
+      if (!slotsForDay) continue;
 
-      const availableDate = d.toISOString().split("T")[0];
+      const available_date = d.toISOString().slice(0, 10);
 
-      for (const time of start_times) {
+      for (const start_time of slotsForDay) {
         availabilityRows.push({
           tour_id,
-          available_date: availableDate,
-          start_time: time,
+          available_date,
+          start_time,
           total_capacity: maximum_group_size,
           booked_capacity: 0,
           is_blocked: false,
@@ -412,25 +453,32 @@ export const createTourStepFiveService = async (payload = {}) => {
       }
     }
 
-    if (availabilityRows.length > 0) {
-      await TourAvailability.bulkCreate(availabilityRows, { transaction });
+    if (availabilityRows.length) {
+      await TourAvailability.bulkCreate(availabilityRows, {
+        transaction,
+        ignoreDuplicates: true, // VERY IMPORTANT
+      });
     }
 
     await transaction.commit();
 
     return {
       success: true,
-      message: "Duration, operating days and availability added successfully",
+      message: "Tour availability generated successfully",
       data: {
-        tour_id: tour.id,
-        completed_steps: 5,
+        tour_id,
+        generated_till: generationEndDate.toISOString().slice(0, 10),
       },
     };
   } catch (error) {
     await transaction.rollback();
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong"
+    );
   }
 };
+
 
 // tour creation step 6
 export const createTourStepSixService = async (payload = {}) => {
