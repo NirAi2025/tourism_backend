@@ -117,57 +117,65 @@ User.hasOne(GuidePublicProfile, { foreignKey: "guide_id" });
 
 // --------------------------------------------------------------- tour associations---------------------------------------------------------------
 
-Tour.belongsTo(TourCategory, { foreignKey: "tour_category_id", as: "category" });
+Tour.belongsTo(TourCategory, { foreignKey: "tour_category_id"});
 TourCategory.hasMany(Tour, { foreignKey: "tour_category_id" });
 
-Tour.hasOne(Itinerary, { foreignKey: "tour_id", as: "itinerary" });
+Tour.hasOne(Itinerary, { foreignKey: "tour_id"});
 Itinerary.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourStop, { foreignKey: "tour_id", as: "stops" });
+Tour.hasMany(TourStop, { foreignKey: "tour_id"});
 TourStop.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourSearchTag, { foreignKey: "tour_id", as: "searchTags" });
+Tour.hasMany(TourSearchTag, { foreignKey: "tour_id"});
 TourSearchTag.belongsTo(Tour, { foreignKey: "tour_id"});
 
 // Tour.belongsToMany(TourTag, { through: TourTagMap, foreignKey: "tour_id", otherKey: "tag_id", as: "tags" });
 // TourTag.belongsToMany(Tour, { through: TourTagMap, foreignKey: "tag_id", otherKey: "tour_id" });
 
-Tour.hasMany(TourLanguage, { foreignKey: "tour_id", as: "languages" });
+Tour.hasMany(TourLanguage, { foreignKey: "tour_id"});
 TourLanguage.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourMedia, { foreignKey: "tour_id", as: "media" });
+Tour.hasMany(TourMedia, { foreignKey: "tour_id"});
 TourMedia.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourOperatingDay, { foreignKey: "tour_id", as: "operatingDays" });
+Tour.hasMany(TourOperatingDay, { foreignKey: "tour_id"});
 TourOperatingDay.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasOne(TourPrice, { foreignKey: "tour_id", as: "pricing" });
+Tour.hasOne(TourPrice, { foreignKey: "tour_id"});
 TourPrice.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourOtherPrice, { foreignKey: "tour_id", as: "otherPrices" });
+Tour.hasMany(TourOtherPrice, { foreignKey: "tour_id"});
 TourOtherPrice.belongsTo(Tour, { foreignKey: "tour_id" });
 
-TourPrice.belongsTo(PriceType, { foreignKey: "price_type_id", as: "priceType" });
+TourPrice.belongsTo(PriceType, { foreignKey: "price_type_id"});
 PriceType.hasMany(TourPrice, { foreignKey: "price_type_id" });
 
-Tour.hasOne(TourTicket, { foreignKey: "tour_id", as: "tickets" });
+Tour.hasOne(TourTicket, { foreignKey: "tour_id"});
 TourTicket.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasOne(TourPolicy, { foreignKey: "tour_id", as: "policy" });
+Tour.hasOne(TourPolicy, { foreignKey: "tour_id"});
 TourPolicy.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasOne(TourSafety, { foreignKey: "tour_id", as: "safety" });
+Tour.hasOne(TourSafety, { foreignKey: "tour_id"});
 TourSafety.belongsTo(Tour, { foreignKey: "tour_id" });
 
-Tour.hasMany(TourAvailability, { foreignKey: "tour_id", as: "availabilities" });
+Tour.hasMany(TourAvailability, { foreignKey: "tour_id"});
 TourAvailability.belongsTo(Tour, { foreignKey: "tour_id" });
 
 TourInclusionExclusion.belongsTo(Tour, { foreignKey: "tour_id" });
 Tour.hasOne(TourInclusionExclusion, { foreignKey: "tour_id" });
 
-Tour.belongsTo(Country, { foreignKey: "country_id", as: "tour_country" });
-Tour.belongsTo(State, { foreignKey: "state_id", as: "tour_state" });
-Tour.belongsTo(City, { foreignKey: "city_id", as: "tour_city" });
+Tour.belongsTo(Country, { foreignKey: "country_id"});
+Tour.belongsTo(State, { foreignKey: "state_id"});
+Tour.belongsTo(City, { foreignKey: "city_id"});
+
+Tour.hasMany(TourTagMap, { foreignKey: "tour_id"});
+TourTagMap.belongsTo(Tour, { foreignKey: "tour_id"});
+TourTag.hasMany(TourTagMap, { foreignKey: "tag_id"});
+TourTagMap.belongsTo(TourTag, { foreignKey: "tag_id" });
+
+TourLanguage.belongsTo(Language, { foreignKey: "language_id" });
+Language.hasMany(TourLanguage, { foreignKey: "language_id" });
 
 
 export {

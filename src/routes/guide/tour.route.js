@@ -12,7 +12,8 @@ import {
     createTourStepNine,
     createTourStepTen,
     createTourStepEleven,
-    myTourProducts
+    myTourProducts,
+    tourDetails
 } from "../../controllers/guide/tour.controller.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
 
@@ -578,5 +579,32 @@ router.post("/create-tour-step-eleven", authenticateToken, createTourStepEleven)
  *         description: Server error
  */
 router.get("/my-tours", authenticateToken, myTourProducts);
+
+/**
+ * @swagger
+ * /guide/tours/tour-details/{id}:
+ *   get:
+ *     summary: Get tour details by ID
+ *     tags: [Guide Tours]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Tour ID
+ *     responses:
+ *       200:
+ *         description: Tour details fetched successfully
+ *       404:
+ *         description: Tour not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get("/tour-details/:id", authenticateToken, tourDetails);
 
 export default router;

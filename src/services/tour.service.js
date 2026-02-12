@@ -22,7 +22,9 @@ import {
   Country,
   State,
   City,
+  Language
 } from "../models/index.js";
+import { withFileUrl } from "../config/fileUploadPath.js";
 
 export const tourCategoriesService = async (payload = {}) => {
   const { category_id, filter } = payload;
@@ -948,22 +950,22 @@ export const myTourProductsService = async ({
       include: [
         {
           model: TourCategory,
-          as: "category",
+          as: "tour_category",
           attributes: ["id", "name"],
         },
         {
           model: Country,
-          as: "tour_country",
+          as: "country",
           attributes: ["id", "name"],
         },
         {
           model: State,
-          as: "tour_state",
+          as: "state",
           attributes: ["id", "name"],
         },
         {
           model: City,
-          as: "tour_city",
+          as: "city",
           attributes: ["id", "name"],
         },
       ],
@@ -994,87 +996,154 @@ export const myTourProductDetailsService = async (id) => {
       include: [
         {
           model: TourCategory,
-          as: "category",
+          as: "tour_category",
+          attributes: ["id", "name"],
         },
         {
           model: Country,
-          as: "tour_country",
+          as: "country",
+          attributes: ["id", "name"],
         },
         {
           model: State,
-          as: "tour_state",
+          as: "state",
+          attributes: ["id", "name"],
         },
         {
           model: City,
-          as: "tour_city",
+          as: "city",
+          attributes: ["id", "name"],
         },
+
         {
           model: TourTagMap,
-          as: "tags",
+          as: "tour_tag_maps",
+          attributes: { exclude: ["created_at", "updated_at"] },
           include: [
             {
               model: TourTag,
-              as: "tag",
+              as: "tour_tag",
+              attributes: ["id", "name"],
             },
           ],
         },
+
         {
           model: Itinerary,
-          as: "itinerary",
+          as: "tour_itinerary",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourStop,
-          as: "stops",
+          as: "tour_stops",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourOperatingDay,
-          as: "operating_days",
+          as: "tour_operating_days",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourAvailability,
-          as: "availability",
+          as: "tour_availabilities",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourPrice,
-          as: "prices",
+          as: "tour_price",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourTicket,
-          as: "tickets",
+          as: "tour_ticket",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourInclusionExclusion,
-          as: "inclusion_exclusion",
+          as: "tour_inclusion_exclusion",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
+
         {
           model: TourLanguage,
           as: "tour_languages",
+          attributes: { exclude: ["created_at", "updated_at"] },
           include: [
             {
               model: Language,
               as: "language",
+              attributes: ["id", "name"],
             },
           ],
         },
+
         {
           model: TourSafety,
           as: "tour_safety",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourMedia,
-          as: "tour_media",
+          as: "tour_medias",
+          attributes: ["id", "type", "media", "url"],
         },
+
         {
           model: TourPolicy,
-          as: "tour_policies",
+          as: "tour_policy",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
         {
           model: TourSearchTag,
-          as: "search_tags",
+          as: "tour_search_tags",
+          attributes: { exclude: ["created_at", "updated_at"] },
         },
       ],
     });
+
+    if (!tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
+    }
+
+    const media = {
+      cover: null,
+      gallery: [],
+      videos: [],
+    };
+
+    tour.tour_medias?.forEach((item) => {
+      if (item.type === "cover") {
+        media.cover = item.media
+          ? withFileUrl(item.media, "tours")
+          : item.url;
+      }
+
+      if (item.type == "gallery") {
+        media.gallery.push(
+          item.media
+            ? withFileUrl(item.media, "tours")
+            : item.url
+        );
+      }
+
+      if (item.type === "video") {
+        media.videos.push(item.url);
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        ...tour.toJSON(),
+        tour_medias: media, // override raw media
+      },
+    };
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    throw new ApiError(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong"
+    );
   }
 };
+
+

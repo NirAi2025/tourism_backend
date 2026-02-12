@@ -23,7 +23,7 @@ const TourOperatingDay = sequelize.define(
     },
   },
   {
-    timestamps: true,
+    timestamps: false,
     paranoid: false,
     underscored: true
   }
