@@ -1179,7 +1179,6 @@ export const updateTourStatusService = async(id) => {
     return {
       success: true,
       message: "Tour status updated successfully",
-      data: tour,
     };
   } catch (error) {
     throw new ApiError(

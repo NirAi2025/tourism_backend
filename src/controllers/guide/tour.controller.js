@@ -348,7 +348,6 @@ export const updateTourStatus = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: result.message,
-      data: result.data,
     });
   } catch (error) {
     return res
