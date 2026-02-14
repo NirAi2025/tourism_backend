@@ -14,7 +14,8 @@ import {
   createTourStepTenService,
   createTourStepElevenService,
   myTourProductsService,
-  myTourProductDetailsService
+  myTourProductDetailsService,
+  updateTourStatusService
 } from "../../services/tour.service.js";
 import {
   TOUR_IMG_UPLOAD_PATH
@@ -324,6 +325,25 @@ export const tourDetails = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await myTourProductDetailsService(id);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+  }
+};
+export const updateTourStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await updateTourStatusService(id);
 
     return res.status(StatusCodes.OK).json({
       success: true,

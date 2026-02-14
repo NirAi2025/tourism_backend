@@ -177,6 +177,12 @@ const Tour = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: '0: No, 1: Yes',
+    },
     status: {
       type: DataTypes.TINYINT,
       allowNull: true,

@@ -1167,3 +1167,24 @@ export const myTourProductDetailsService = async (id) => {
     );
   }
 };
+export const updateTourStatusService = async(id) => {
+  try {
+    const tour = await Tour.findByPk(id);
+    if (!tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
+    }
+    tour.update({
+      is_active: tour.is_active == true ? false : true,
+    });
+    return {
+      success: true,
+      message: "Tour status updated successfully",
+      data: tour,
+    };
+  } catch (error) {
+    throw new ApiError(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong",
+    );
+  }
+}

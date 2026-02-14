@@ -177,6 +177,12 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.TEXT,
       allowNull: true,
     },
+    is_active: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: '0: No, 1: Yes',
+    },
     status: {
       type: Sequelize.TINYINT,
       allowNull: true,
