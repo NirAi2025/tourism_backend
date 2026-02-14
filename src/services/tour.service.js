@@ -22,7 +22,7 @@ import {
   Country,
   State,
   City,
-  Language
+  Language,
 } from "../models/index.js";
 import { withFileUrl } from "../config/fileUploadPath.js";
 
@@ -361,7 +361,7 @@ export const createTourStepFiveService = async (payload = {}) => {
         is_private_tour: true,
         completed_steps: 5,
       },
-      { where: { id: tour_id }, transaction }
+      { where: { id: tour_id }, transaction },
     );
 
     // 3. Reset operating days ONLY (availability is rolling now)
@@ -377,7 +377,7 @@ export const createTourStepFiveService = async (payload = {}) => {
         tour_id,
         day_of_week: day,
       })),
-      { transaction }
+      { transaction },
     );
 
     // 5. Group time slots by day
@@ -403,12 +403,12 @@ export const createTourStepFiveService = async (payload = {}) => {
     const generationStartDate = lastAvailability
       ? new Date(
           new Date(lastAvailability.available_date).setDate(
-            new Date(lastAvailability.available_date).getDate() + 1
-          )
+            new Date(lastAvailability.available_date).getDate() + 1,
+          ),
         )
       : season_start_date
-      ? new Date(season_start_date)
-      : today;
+        ? new Date(season_start_date)
+        : today;
 
     let generationEndDate;
 
@@ -417,8 +417,8 @@ export const createTourStepFiveService = async (payload = {}) => {
     } else {
       generationEndDate = new Date(
         new Date(generationStartDate).setDate(
-          generationStartDate.getDate() + AVAILABILITY_WINDOW_DAYS
-        )
+          generationStartDate.getDate() + AVAILABILITY_WINDOW_DAYS,
+        ),
       );
     }
 
@@ -476,11 +476,10 @@ export const createTourStepFiveService = async (payload = {}) => {
     await transaction.rollback();
     throw new ApiError(
       StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message || "Something went wrong"
+      error.message || "Something went wrong",
     );
   }
 };
-
 
 // tour creation step 6
 export const createTourStepSixService = async (payload = {}) => {
@@ -938,6 +937,7 @@ export const myTourProductsService = async ({
   limit = 10,
 } = {}) => {
   try {
+    console.log(user_id);
     const pageNumber = Math.max(parseInt(page, 10), 1);
     const pageSize = Math.min(parseInt(limit, 10), 50);
     const offset = (pageNumber - 1) * pageSize;
@@ -968,16 +968,42 @@ export const myTourProductsService = async ({
           as: "city",
           attributes: ["id", "name"],
         },
+        {
+          model: TourMedia,
+          as: "tour_medias",
+          where: { type: "cover" },
+          required: false,
+          attributes: ["id", "media", "url"],
+        },
       ],
       order: [["created_at", "DESC"]],
+    });
+    const tours = rows.map((tour) => {
+      const tourJson = tour.toJSON();
+
+      let cover_image = null;
+
+      if (tourJson.tour_medias?.length > 0) {
+        const media = tourJson.tour_medias[0];
+
+        cover_image = {
+          id: media.id,
+          url: media.media ? withFileUrl(media.media, "tour") : media.url,
+        };
+      }
+
+      delete tourJson.tour_medias;
+
+      return {
+        ...tourJson,
+        cover_image,
+      };
     });
 
     return {
       success: true,
       message: "My tours fetched successfully",
-      data: {
-        tours: rows,
-      },
+      data: { tours },
       pagination: {
         totalRecords: count,
         totalPages: Math.ceil(count / pageSize),
@@ -1113,16 +1139,12 @@ export const myTourProductDetailsService = async (id) => {
 
     tour.tour_medias?.forEach((item) => {
       if (item.type === "cover") {
-        media.cover = item.media
-          ? withFileUrl(item.media, "tours")
-          : item.url;
+        media.cover = item.media ? withFileUrl(item.media, "tours") : item.url;
       }
 
       if (item.type == "gallery") {
         media.gallery.push(
-          item.media
-            ? withFileUrl(item.media, "tours")
-            : item.url
+          item.media ? withFileUrl(item.media, "tours") : item.url,
         );
       }
 
@@ -1141,9 +1163,7 @@ export const myTourProductDetailsService = async (id) => {
   } catch (error) {
     throw new ApiError(
       error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message || "Something went wrong"
+      error.message || "Something went wrong",
     );
   }
 };
-
-

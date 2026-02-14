@@ -103,7 +103,7 @@ export const registrationService = async (payload = {}) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Check if user already exists
+    // Check existing user
     const existingUser = await User.findOne({
       where: { email },
       transaction,
@@ -128,6 +128,7 @@ export const registrationService = async (payload = {}) => {
         "User role not found"
       );
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
@@ -139,11 +140,12 @@ export const registrationService = async (payload = {}) => {
         phone,
         password: hashedPassword,
         auth_provider: 1,
-        email_verified_at: new Date(), // mark as verified
+        email_verified_at: new Date(),
       },
       { transaction }
     );
 
+    // Assign role
     await UserRole.create(
       {
         user_id: user.id,
@@ -153,8 +155,10 @@ export const registrationService = async (payload = {}) => {
     );
 
     await transaction.commit();
-    const roles = user.roles.map((role) => role.slug) || [];
-    // generate access token
+
+    // Since we already know the role
+    const roles = [userRole.slug];
+
     const accessToken = generateAccessToken({
       id: user.id,
       email: user.email,
@@ -163,7 +167,6 @@ export const registrationService = async (payload = {}) => {
 
     return {
       accessToken,
-      // refreshToken,
       user: {
         id: user.id,
         name: user.name,
@@ -176,5 +179,6 @@ export const registrationService = async (payload = {}) => {
     throw error;
   }
 };
+
 
 

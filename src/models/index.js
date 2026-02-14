@@ -42,6 +42,7 @@ import TourTagMap from "./tourTagMap.model.js";
 import TourTicket from "./tourTicket.model.js";
 import TourAvailability from "./tourAvailability.model.js";
 import TourInclusionExclusion from "./tourInclusionExclusion.model.js";
+import Wishlist from "./wishlist.model.js";
 
 
 /*
@@ -177,6 +178,8 @@ TourTagMap.belongsTo(TourTag, { foreignKey: "tag_id" });
 TourLanguage.belongsTo(Language, { foreignKey: "language_id" });
 Language.hasMany(TourLanguage, { foreignKey: "language_id" });
 
+Tour.belongsTo(User, { foreignKey: "guide_id"});
+
 
 export {
   sequelize,
@@ -222,5 +225,6 @@ export {
   TourTagMap,
   TourTicket,
   TourAvailability,
-  TourInclusionExclusion
+  TourInclusionExclusion,
+  Wishlist
 };
