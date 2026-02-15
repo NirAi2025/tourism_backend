@@ -1019,128 +1019,57 @@ export const myTourProductsService = async ({
 export const myTourProductDetailsService = async (id) => {
   try {
     const tour = await Tour.findByPk(id, {
-      attributes: { exclude: ["deleted_at"] },
-
       include: [
-        // ✅ 1-to-1 (safe to join normally)
-        {
-          model: TourCategory,
-          as: "tour_category",
-          attributes: ["id", "name"],
-        },
-        {
-          model: Country,
-          as: "country",
-          attributes: ["id", "name"],
-        },
-        {
-          model: State,
-          as: "state",
-          attributes: ["id", "name"],
-        },
-        {
-          model: City,
-          as: "city",
-          attributes: ["id", "name"],
-        },
-        {
-          model: TourTicket,
-          as: "tour_ticket",
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-        {
-          model: TourInclusionExclusion,
-          as: "tour_inclusion_exclusion",
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-        {
-          model: TourSafety,
-          as: "tour_safety",
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-        {
-          model: TourPolicy,
-          as: "tour_policy",
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
+        // ---------- belongsTo ----------
+        { model: TourCategory },
+        { model: Country },
+        { model: State },
+        { model: City },
 
-        // 🔥 1-to-MANY (MUST use separate: true)
+        // ---------- hasOne (NO separate) ----------
+        { model: Itinerary },
+        { model: TourPrice },
+        { model: TourTicket },
+        { model: TourPolicy },
+        { model: TourSafety },
+        { model: TourInclusionExclusion },
 
-        {
-          model: TourTagMap,
-          as: "tour_tag_maps",
-          separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
-          include: [
-            {
-              model: TourTag,
-              as: "tour_tag",
-              attributes: ["id", "name"],
-            },
-          ],
-        },
-
-        {
-          model: Itinerary,
-          as: "tour_itinerary",
-          separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-
+        // ---------- hasMany (USE separate) ----------
         {
           model: TourStop,
-          as: "tour_stops",
           separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
         },
-
         {
-          model: TourOperatingDay,
-          as: "tour_operating_days",
+          model: TourSearchTag,
           separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
         },
-
-        {
-          model: TourAvailability,
-          as: "tour_availabilities",
-          separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-
-        {
-          model: TourPrice,
-          as: "tour_price",
-          separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
-        },
-
         {
           model: TourLanguage,
-          as: "tour_languages",
           separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
-          include: [
-            {
-              model: Language,
-              as: "language",
-              attributes: ["id", "name"],
-            },
-          ],
+          include: [{ model: Language }],
         },
-
         {
           model: TourMedia,
-          as: "tour_medias",
           separate: true,
           attributes: ["id", "type", "media", "url"],
         },
-
         {
-          model: TourSearchTag,
-          as: "tour_search_tags",
+          model: TourOperatingDay,
           separate: true,
-          attributes: { exclude: ["created_at", "updated_at"] },
+        },
+        {
+          model: TourOtherPrice,
+          separate: true,
+        },
+        {
+          model: TourAvailability,
+          separate: true,
+          order: [["date", "ASC"]],
+        },
+        {
+          model: TourTagMap,
+          separate: true,
+          include: [{ model: TourTag }],
         },
       ],
     });
@@ -1149,14 +1078,14 @@ export const myTourProductDetailsService = async (id) => {
       throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
     }
 
-    // ---------- Media Processing ----------
+    // Media restructuring
     const media = {
       cover: null,
       gallery: [],
       videos: [],
     };
 
-    tour.tour_medias?.forEach((item) => {
+    tour.TourMedia?.forEach((item) => {
       if (item.type === "cover") {
         media.cover = item.media
           ? withFileUrl(item.media, "tours")
@@ -1190,6 +1119,7 @@ export const myTourProductDetailsService = async (id) => {
     );
   }
 };
+
 
 export const updateTourStatusService = async(id) => {
   try {
