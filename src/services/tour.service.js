@@ -1021,21 +1021,21 @@ export const myTourProductDetailsService = async (id) => {
     const tour = await Tour.findByPk(id, {
       include: [
         // ---------- belongsTo ----------
-        { 
-          model: TourCategory, 
-          attributes: ["id", "name"]
+        {
+          model: TourCategory,
+          attributes: ["id", "name"],
         },
-        { 
+        {
           model: Country,
-          attributes: ["id", "name"]
+          attributes: ["id", "name"],
         },
-        { 
+        {
           model: State,
-          attributes: ["id", "name"]
+          attributes: ["id", "name"],
         },
-        { 
+        {
           model: City,
-          attributes: ["id", "name"]
+          attributes: ["id", "name"],
         },
         // ---------- hasOne (NO separate) ----------
         { model: Itinerary },
@@ -1061,8 +1061,8 @@ export const myTourProductDetailsService = async (id) => {
         },
         {
           model: TourMedia,
+          as: "tour_medias",
           separate: true,
-          attributes: ["id", "type", "media", "url"],
         },
         {
           model: TourOperatingDay,
@@ -1085,30 +1085,28 @@ export const myTourProductDetailsService = async (id) => {
       throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
     }
 
-    // Media restructuring
     const media = {
       cover: null,
       gallery: [],
-      videos: [],
+      video: null, // single video
     };
 
-    tour.TourMedia?.forEach((item) => {
-      if (item.type == "cover") {
-        media.cover = item.media
-          ? withFileUrl(item.media, "tours")
-          : item.url;
+    tour.tour_medias?.forEach((item) => {
+      // Single Cover
+      if (item.type == "cover" && !media.cover) {
+        media.cover = item.media ? withFileUrl(item.media, "tour") : item.url;
       }
 
+      // Multiple Gallery
       if (item.type == "gallery") {
         media.gallery.push(
-          item.media
-            ? withFileUrl(item.media, "tours")
-            : item.url
+          item.media ? withFileUrl(item.media, "tour") : item.url,
         );
       }
 
-      if (item.type == "video") {
-        media.videos.push(item.url);
+      // Single Video
+      if (item.type == "video" && !media.video) {
+        media.video = item.url;
       }
     });
 
@@ -1122,13 +1120,12 @@ export const myTourProductDetailsService = async (id) => {
   } catch (error) {
     throw new ApiError(
       error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message || "Something went wrong"
+      error.message || "Something went wrong",
     );
   }
 };
 
-
-export const updateTourStatusService = async(id) => {
+export const updateTourStatusService = async (id) => {
   try {
     const tour = await Tour.findByPk(id);
     if (!tour) {
@@ -1147,4 +1144,4 @@ export const updateTourStatusService = async(id) => {
       error.message || "Something went wrong",
     );
   }
-}
+};
