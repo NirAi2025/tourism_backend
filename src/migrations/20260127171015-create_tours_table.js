@@ -195,6 +195,12 @@ export async function up(queryInterface, Sequelize) {
       defaultValue: 0,
       comment: 'Number of completed steps in tour creation',
     },
+    image_rights_confirmation: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: '0: No, 1: Yes',
+    },
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.fn('NOW'),

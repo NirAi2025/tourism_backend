@@ -775,7 +775,10 @@ export const createTourStepNineService = async (payload = {}) => {
 
     // 7. Update completed step
     await Tour.update(
-      { completed_steps: 9 },
+      { 
+        completed_steps: 9,
+        image_rights_confirmation 
+      },
       { where: { id: tour_id }, transaction },
     );
 
@@ -1089,6 +1092,7 @@ export const myTourProductDetailsService = async (id) => {
       cover: null,
       gallery: [],
       video: null, // single video
+      image_rights_confirmation: tour.image_rights_confirmation,
     };
 
     tour.tour_medias?.forEach((item) => {

@@ -195,6 +195,12 @@ const Tour = sequelize.define(
       defaultValue: 0,
       comment: "Number of completed steps in tour creation",
     },
+    image_rights_confirmation: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: '0: No, 1: Yes',
+    },
   },
   {
     timestamps: true,
