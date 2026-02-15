@@ -1021,10 +1021,22 @@ export const myTourProductDetailsService = async (id) => {
     const tour = await Tour.findByPk(id, {
       include: [
         // ---------- belongsTo ----------
-        { model: TourCategory },
-        { model: Country },
-        { model: State },
-        { model: City },
+        { 
+          model: TourCategory, 
+          attributes: ["id", "name"]
+        },
+        { 
+          model: Country,
+          attributes: ["id", "name"]
+        },
+        { 
+          model: State,
+          attributes: ["id", "name"]
+        },
+        { 
+          model: City,
+          attributes: ["id", "name"]
+        },
 
         // ---------- hasOne (NO separate) ----------
         { model: Itinerary },
