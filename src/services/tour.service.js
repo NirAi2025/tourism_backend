@@ -1058,10 +1058,6 @@ export const myTourProductDetailsService = async (id) => {
           separate: true,
         },
         {
-          model: TourOtherPrice,
-          separate: true,
-        },
-        {
           model: TourAvailability,
           separate: true,
           order: [["date", "ASC"]],
