@@ -1037,7 +1037,6 @@ export const myTourProductDetailsService = async (id) => {
           model: City,
           attributes: ["id", "name"]
         },
-
         // ---------- hasOne (NO separate) ----------
         { model: Itinerary },
         { model: TourPrice },
