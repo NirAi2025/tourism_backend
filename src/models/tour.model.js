@@ -186,8 +186,8 @@ const Tour = sequelize.define(
     status: {
       type: DataTypes.TINYINT,
       allowNull: true,
-      defaultValue: 2,
-      comment: "0=Inactive, 1=Active, 2=Draft",
+      defaultValue: 0,
+      comment: "0=Draft, 1=Approved, 2=Rejected",
     },
     completed_steps: {
       type: DataTypes.INTEGER,
