@@ -1071,7 +1071,7 @@ export const myTourProductDetailsService = async (id) => {
         {
           model: TourAvailability,
           separate: true,
-          order: [["date", "ASC"]],
+          order: [["available_date", "ASC"]],
         },
         {
           model: TourTagMap,
@@ -1093,13 +1093,13 @@ export const myTourProductDetailsService = async (id) => {
     };
 
     tour.TourMedia?.forEach((item) => {
-      if (item.type === "cover") {
+      if (item.type == "cover") {
         media.cover = item.media
           ? withFileUrl(item.media, "tours")
           : item.url;
       }
 
-      if (item.type === "gallery") {
+      if (item.type == "gallery") {
         media.gallery.push(
           item.media
             ? withFileUrl(item.media, "tours")
@@ -1107,7 +1107,7 @@ export const myTourProductDetailsService = async (id) => {
         );
       }
 
-      if (item.type === "video") {
+      if (item.type == "video") {
         media.videos.push(item.url);
       }
     });
