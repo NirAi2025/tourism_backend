@@ -29,13 +29,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Handle preflight OPTIONS requests for all routes
-app.options('*', cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
 
 
 app.use(express.json());
