@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors({
-  origin: ['https://www.tourguidetrack.in', 'https://tourguidetrack.in'],
+  origin: ['https://www.tourguidetrack.in', 'https://tourguidetrack.in', 'https://admin.tourguidetrack.in/'],
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
