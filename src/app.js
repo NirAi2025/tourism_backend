@@ -16,26 +16,27 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 // allow main site and admin panel
+const allowedOrigins = [
+  'https://www.tourguidetrack.in',  // main site
+  'https://tourguidetrack.in',      // main site without www
+  'https://admin.tourguidetrack.in' // admin panel
+];
+
 app.use(cors({
-  origin: [
-    'https://www.tourguidetrack.in',  // main site
-    'https://tourguidetrack.in',
-    'https://admin.tourguidetrack.in' // admin panel
-  ],
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
-// handle preflight requests
+// Handle preflight OPTIONS requests for all routes
 app.options('*', cors({
-  origin: [
-    'https://www.tourguidetrack.in',
-    'https://tourguidetrack.in',
-    'https://admin.tourguidetrack.in'
-  ],
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
