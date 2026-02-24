@@ -1,7 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import constants from "../../config/constants.js";
 import {
-  registrationService,
+  initialRegistrationService,
+  generalInfoService,
   verifyEmailService,
   personalProfileInfoService,
   createGuideIdentityService,
@@ -19,9 +20,36 @@ import {
 } from "../../config/fileUploadPath.js";
 import ApiError from "../../utils/ApiError.js";
 
-export const register = async (req, res) => {
+export const initialRegistration = async (req, res) => {
   try {
-    const result = await registrationService(req.body);
+    const result = await initialRegistrationService(req.body);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result?.message || "Initial registration successful",
+      data: result?.token
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || StatusCodes.BAD_REQUEST;
+
+    if (statusCode == StatusCodes.CONFLICT) {
+      return res.status(StatusCodes.CONFLICT).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || constants.INTERNAL_SERVER_ERROR,
+    });
+  }
+};
+export const generalInfo = async (req, res) => {
+  try {
+    const userId = req.user.id; // from authenticateToken middleware
+    req.body.user_id = userId;
+    const result = await generalInfoService(req.body);
 
     return res.status(StatusCodes.CREATED).json({
       success: true,
@@ -52,7 +80,6 @@ export const verifyEmail = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: result?.message || "Email verified",
-      data: result || null,
     });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.BAD_REQUEST;

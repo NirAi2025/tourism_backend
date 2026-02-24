@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import crypto from "crypto";
 import ApiError from "../../utils/ApiError.js";
 import sequelize from "../../config/database.js";
+// import { sendVerificationEmail } from "../email.service.js";
 import { withFileUrl } from "../../config/fileUploadPath.js";
 import {
   Country,
@@ -26,7 +27,7 @@ import {
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
 
 // --------------------------------- signup / registration ---------------------------------
-export const registrationService = async (payload = {}) => {
+export const initialRegistrationService = async (payload = {}) => {
   const {
     firstName,
     lastName,
@@ -34,14 +35,7 @@ export const registrationService = async (payload = {}) => {
     country_code,
     phone,
     password,
-    whatsAppNumber,
-    languageId,
-    dob,
-    nationality,
-    countryOfOperation,
-    stateId,
-    primaryCity,
-    yearsOfExperience,
+    country_id,
   } = payload;
 
   return sequelize.transaction(async (transaction) => {
@@ -54,7 +48,7 @@ export const registrationService = async (payload = {}) => {
     if (existingUser) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        "User already exists. Please login.",
+        "User already exists. Please login."
       );
     }
 
@@ -67,12 +61,14 @@ export const registrationService = async (payload = {}) => {
     if (!guideRole) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        "Guide role not found",
+        "Guide role not found"
       );
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
     const user = await User.create(
       {
         name: `${firstName} ${lastName}`.trim(),
@@ -80,27 +76,71 @@ export const registrationService = async (payload = {}) => {
         country_code,
         phone,
         password: hashedPassword,
+        country_id,
         auth_provider: 1,
-        completed_steps: 1,
-        whatsapp_number: whatsAppNumber ?? null,
-        language_id: languageId ?? null,
       },
-      { transaction },
+      { transaction }
     );
 
-    // Assign role
     await UserRole.create(
       {
         user_id: user.id,
         role_id: guideRole.id,
       },
-      { transaction },
+      { transaction }
     );
+
+    const token = await verificationRecord(user, transaction);
+
+    transaction.afterCommit(async () => {
+      // await sendVerificationEmail(user, token);
+    });
+
+    return {
+      success: true,
+      message: "Verification email sent. Please verify your email.",
+      token,
+    };
+  });
+};
+export const generalInfoService = async (payload = {}) => {
+  const {
+    user_id,
+    whatsAppNumber,
+    languageId,
+    dob,
+    nationality,
+    countryOfOperation,
+    stateId,
+    primaryCity,
+    yearsOfExperience,
+  } = payload;
+
+  return sequelize.transaction(async (transaction) => {
+    const isGuide = await User.findByPk(user_id, {
+      include: {
+        model: Role,
+        as: "roles",
+        where: { slug: "guide" },
+        attributes: ["id"],
+        through: { attributes: [] },
+      },
+      transaction,
+    });
+    if (!isGuide) {
+      throw new ApiError(StatusCodes.FORBIDDEN, "User is not a guide");
+    }
+    // update user info
+    isGuide.update({
+      whatsapp_number: whatsAppNumber ?? null,
+      language_id: languageId ?? null,
+      completed_steps: 1,
+    }, { transaction });
 
     //  Create profile
     const profile = await Profile.create(
       {
-        user_id: user.id,
+        user_id,
         dob,
         nationality,
         tour_country_id: countryOfOperation,
@@ -111,55 +151,51 @@ export const registrationService = async (payload = {}) => {
       { transaction },
     );
 
-    const accessToken = generateAccessToken({
-      id: user.id,
-      email: user.email,
-      roles: [guideRole.slug],
-    });
-
     return {
       success: true,
       message: "Registration completed successfully",
-      accessToken,
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        country_code: user.country_code,
-        phone: user.phone,
-        completed_steps: user.completed_steps,
+        id: isGuide.id,
+        name: isGuide.name,
+        email: isGuide.email,
+        country_code: isGuide.country_code,
+        phone: isGuide.phone,
+        completed_steps: isGuide.completed_steps,
         profile,
       },
     };
   });
 };
 
-export const sendVerificationEmail = async (user) => {
+export const verificationRecord = async (user, transaction = null) => {
   // Remove old unverified records
   await UserEmailVerification.destroy({
     where: {
       user_id: user.id,
       verified_at: null,
     },
+    transaction,
   });
 
-  // Generate secure token
   const token = crypto.randomBytes(32).toString("hex");
 
-  // Expiry time (24 hours)
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  // Store verification record
-  await UserEmailVerification.create({
-    user_id: user.id,
-    verification_link: token,
-    expires_at: expiresAt,
-  });
+  await UserEmailVerification.create(
+    {
+      user_id: user.id,
+      verification_link: token,
+      expires_at: expiresAt,
+    },
+    { transaction }
+  );
 
-  // Build verification URL
+  // TODO: send actual email here
   // const verificationUrl = `${process.env.API_URL}/auth/verify-email?token=${token}`;
+
   return token;
 };
+
 
 export const resendVerificationEmail = async (user) => {
   if (user.email_verified_at) {
@@ -252,14 +288,15 @@ export const verifyEmailService = async (token) => {
     await transaction.commit();
 
     return {
-      accessToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        country_code: user.country_code,
-        phone: user.phone,
-      },
+      // accessToken,
+      // user: {
+      //   id: user.id,
+      //   name: user.name,
+      //   email: user.email,
+      //   country_code: user.country_code,
+      //   phone: user.phone,
+      // },
+      message: "email verified! Please complete your profile by login",
     };
   } catch (error) {
     await transaction.rollback();

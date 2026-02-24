@@ -2,7 +2,8 @@ import express from "express";
 import passport from "passport";
 
 import {
-  register,
+  initialRegistration,
+  generalInfo,
   verifyEmail,
   personalInfo,
   uploadGuideIdentity,
@@ -23,9 +24,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /guide/register:
+ * /guide/register-initial:
  *   post:
- *     summary: Register a new guide
+ *     summary: Initial guide registration (Step 1 - Send verification email)
  *     tags: [Guide]
  *     security: []
  *     requestBody:
@@ -34,14 +35,75 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [firstName, lastName, email, country_code, phone, password]
+ *             required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - country_code
+ *               - phone
+ *               - password
+ *               - country_id
  *             properties:
- *               firstName: { type: string, example: John }
- *               lastName: { type: string, example: Doe }
- *               email: { type: string, format: email, example: john@example.com }
- *               country_code: { type: string, example: "91" }
- *               phone: { type: string, example: "9876543210" }
- *               password: { type: string, format: password, example: "Password@123" }
+ *               firstName:
+ *                 type: string
+ *                 example: John
+ *               lastName:
+ *                 type: string
+ *                 example: Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *              country_code:
+ *                 type: string
+ *                 example: "91"
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: "Password@123"
+ *               country_id:
+ *                 type: integer
+ *                 example: 101
+ *     responses:
+ *       200:
+ *         description: Verification email sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Verification email sent. Please verify your email.
+ *       409:
+ *         description: User already exists
+ *       500:
+ *         description: Server error
+ */
+router.post("/register-initial", initialRegistration);
+
+
+/**
+ * @swagger
+ * /guide/general-info:
+ *   post:
+ *     summary: Register a new guide
+ *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
  *               whatsAppNumber: { type: string, example: "9876543210" }
  *               languageId: { type: integer, example: 1 }
  *               dob: { type: string, format: date, example: "1995-08-15" }
@@ -55,12 +117,12 @@ const router = express.Router();
  *       409: { description: User already exists }
  *       500: { description: Server error }
  */
-router.post("/register", validate(registrationSchema), register);
+router.post("/general-info", validate(registrationSchema), authenticateToken, generalInfo);
 /**
  * @swagger
  * /guide/verify-email/{token}:
  *   get:
- *     tags: [Auth]
+ *     tags: [Guide]
  *     summary: Verify email address
  *     security: []   # Public route
  *     parameters:
