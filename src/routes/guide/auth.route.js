@@ -54,7 +54,7 @@ const router = express.Router();
  *                 type: string
  *                 format: email
  *                 example: john@example.com
- *              country_code:
+ *               country_code:
  *                 type: string
  *                 example: "91"
  *               phone:
