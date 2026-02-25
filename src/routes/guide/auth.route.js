@@ -84,6 +84,28 @@ const router = express.Router();
  */
 router.post("/register-initial", initialRegistration);
 
+/**
+ * @swagger
+ * /guide/verify-email/{token}:
+ *   get:
+ *     tags: [Guide]
+ *     summary: Verify email address
+ *     security: []   # Public route
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Email verification token
+ *     responses:
+ *       200:
+ *         description: Email verified successfully and token issued
+ *       400:
+ *         description: Invalid or expired verification token
+ */
+
+router.get("/verify-email/:token", verifyEmail);
 
 /**
  * @swagger
@@ -114,28 +136,6 @@ router.post("/register-initial", initialRegistration);
  *       500: { description: Server error }
  */
 router.post("/general-info", validate(registrationSchema), authenticateToken, generalInfo);
-/**
- * @swagger
- * /guide/verify-email/{token}:
- *   get:
- *     tags: [Guide]
- *     summary: Verify email address
- *     security: []   # Public route
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: Email verification token
- *     responses:
- *       200:
- *         description: Email verified successfully and token issued
- *       400:
- *         description: Invalid or expired verification token
- */
-
-router.get("/verify-email/:token", verifyEmail);
 
 /**
  * @swagger
