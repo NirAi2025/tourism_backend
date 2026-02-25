@@ -35,7 +35,6 @@ export const initialRegistrationService = async (payload = {}) => {
     country_code,
     phone,
     password,
-    country_id,
   } = payload;
 
   return sequelize.transaction(async (transaction) => {
@@ -60,7 +59,7 @@ export const initialRegistrationService = async (payload = {}) => {
 
     if (!guideRole) {
       throw new ApiError(
-        StatusCodes.INTERNAL_SERVER_ERROR,
+        StatusCodes.UNPROCESSABLE_ENTITY,
         "Guide role not found"
       );
     }
@@ -76,8 +75,8 @@ export const initialRegistrationService = async (payload = {}) => {
         country_code,
         phone,
         password: hashedPassword,
-        country_id,
         auth_provider: 1,
+        completed_steps: 0,
       },
       { transaction }
     );

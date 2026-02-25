@@ -42,7 +42,6 @@ const router = express.Router();
  *               - country_code
  *               - phone
  *               - password
- *               - country_id
  *             properties:
  *               firstName:
  *                 type: string
@@ -64,9 +63,6 @@ const router = express.Router();
  *                 type: string
  *                 format: password
  *                 example: "Password@123"
- *               country_id:
- *                 type: integer
- *                 example: 101
  *     responses:
  *       200:
  *         description: Verification email sent successfully

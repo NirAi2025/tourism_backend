@@ -57,6 +57,7 @@ export const loginService = async (payload = {}) => {
       email: user.email,
       roles,
       completed_steps: user.completed_steps,
+      email_verified_at: user.email_verified_at,
     },
   };
 };
