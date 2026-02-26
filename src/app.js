@@ -19,7 +19,8 @@ const app = express();
 const allowedOrigins = [
   'https://www.tourguidetrack.in',  // main site
   'https://tourguidetrack.in',      // main site without www
-  'https://admin.tourguidetrack.in' // admin panel
+  'https://admin.tourguidetrack.in', // admin panel
+  'http://localhost:5173'
 ];
 
 app.use(cors({
