@@ -11,7 +11,9 @@ import {
   guidePayoutInfoService,
   guidePublicInfoService,
   guideLanguageAndSkillsService,
-  myProfileService
+  myProfileService,
+  reuploadGuideIdentityDocumentsService,
+  reuploadGuideLicenseDocumentsService 
 } from "../../services/guide/auth.service.js";
 import { fileUploaderSingle } from "../../utils/fileUpload.js";
 import {
@@ -458,5 +460,132 @@ export const myProfile = async (req, res) => {
         success: false,
         message: error.message || "Failed to fetch profile data",
       });
+  }
+};
+
+export const reuploadGuideIdentityDocuments = async (req, res) => {
+  try {
+    const files = req.files || {};
+
+    const {
+      government_document_id,
+      selfie_document_id,
+      address_proof_document_id,
+    } = req.body;
+
+    if (
+      !files.government_id &&
+      !files.selfie &&
+      !files.address_proof
+    ) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "At least one document must be uploaded"
+      );
+    }
+
+    const documentConfig = [
+      {
+        fileKey: "government_id",
+        idKey: government_document_id,
+        category: "government_id",
+      },
+      {
+        fileKey: "selfie",
+        idKey: selfie_document_id,
+        category: "selfie",
+      },
+      {
+        fileKey: "address_proof",
+        idKey: address_proof_document_id,
+        category: "address_proof",
+      },
+    ];
+
+    for (const doc of documentConfig) {
+      if (files[doc.fileKey]) {
+        if (!doc.idKey) {
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            `${doc.fileKey}_document_id is required`
+          );
+        }
+
+        const uploaded = await fileUploaderSingle(
+          IDENTITY_DOC_UPLOAD_PATH,
+          files[doc.fileKey]
+        );
+
+        await reuploadGuideIdentityDocumentsService({
+          id: doc.idKey,
+          file: uploaded.newfileName,
+          category: doc.category,
+        });
+      }
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Document(s) reuploaded successfully",
+    });
+
+  } catch (error) {
+    return res.status(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR
+    ).json({
+      success: false,
+      message: error.message || "Failed to reupload documents",
+    });
+  }
+};
+export const reuploadGuideLicense = async (req, res) => {
+  try {
+    const files = req.files || {};
+    const { license_document_id, license_type } = req.body;
+
+    if (!license_document_id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "license_document_id is required"
+      );
+    }
+
+    if (!license_type) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "license_type is required"
+      );
+    }
+
+    if (!files.license_file) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "license_file is required"
+      );
+    }
+
+    const uploaded = await fileUploaderSingle(
+      IDENTITY_DOC_UPLOAD_PATH,
+      files.license_file
+    );
+
+    const response = await reuploadGuideLicenseDocumentsService({
+      id: license_document_id,
+      file: uploaded.newfileName,
+      type: license_type,
+    });
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: response.message,
+    });
+
+  } catch (error) {
+    return res.status(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR
+    ).json({
+      success: false,
+      message: error.message || "Failed to reupload license document",
+    });
   }
 };

@@ -165,7 +165,6 @@ export const generalInfoService = async (payload = {}) => {
     };
   });
 };
-
 export const verificationRecord = async (user, transaction = null) => {
   // Remove old unverified records
   await UserEmailVerification.destroy({
@@ -194,8 +193,6 @@ export const verificationRecord = async (user, transaction = null) => {
 
   return token;
 };
-
-
 export const resendVerificationEmail = async (user) => {
   if (user.email_verified_at) {
     return;
@@ -203,7 +200,6 @@ export const resendVerificationEmail = async (user) => {
 
   await sendVerificationEmail(user);
 };
-
 export const verifyEmailService = async (token) => {
   if (!token) {
     throw new ApiError(
@@ -302,7 +298,6 @@ export const verifyEmailService = async (token) => {
     throw error;
   }
 };
-
 //  step 1: personal profile info
 export const personalProfileInfoService = async (payload = {}) => {
   const {
@@ -381,7 +376,6 @@ export const personalProfileInfoService = async (payload = {}) => {
     throw error;
   }
 };
-
 // step 2: guide identity documents
 export const createGuideIdentityService = async (payload = {}) => {
   const { guideId, documents = [] } = payload;
@@ -847,4 +841,121 @@ export const myProfileService = async (guideId) => {
   });
 
   return data;
+};
+export const reuploadGuideIdentityDocumentsService = async (payload = {}) => {
+  const { id, file, category } = payload;
+
+  if (!id) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "Document id is required."
+      );
+  }
+
+  if (!file) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "File is required."
+      );
+  }
+
+  if (!category) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "Category is required."
+      );
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    // Lock the row for update
+    const document = await GuideIdentity.findByPk(id, {
+      transaction,
+    });
+
+    if (!document) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        "Document not found",
+      );
+    }
+
+    // Update document details
+    await document.update(
+      {
+        document_file: file,
+        verification_status: 0, // reset verification on reupload
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
+
+    return {
+      message: "Document reuploaded successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+export const reuploadGuideLicenseDocumentsService = async (payload = {}) => {
+  const { id, file, type } = payload;
+
+  if (!id) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "Document id is required."
+      );
+  }
+
+  if (!file) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "File is required."
+      );
+  }
+
+  if (!type) {
+    throw new ApiError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        "Type is required."
+      );
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    // Lock the row for update
+    const license = await GuideLicense.findByPk(id, {
+      transaction,
+    });
+
+    if (!license) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        "Document not found",
+      );
+    }
+
+    // Update document details
+    await license.update(
+      {
+        document_file: file,
+        verification_status: 0, // reset verification on reupload
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
+
+    return {
+      message: "License document reuploaded successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };

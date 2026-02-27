@@ -12,7 +12,9 @@ import {
   saveGuidePayoutInfo,
   guidePublicInfo,
   guideLanguagesAndSkills,
-  myProfile
+  myProfile,
+  reuploadGuideIdentityDocuments,
+  reuploadGuideLicense
 } from "../../controllers/guide/auth.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
@@ -321,6 +323,123 @@ router.post("/payout-info", authenticateToken, saveGuidePayoutInfo);
  *       500: { description: Server error }
  */
 router.post("/public-info", authenticateToken, guidePublicInfo);
+/**
+ * @swagger
+ * /guide/identity/reupload:
+ *   put:
+ *     summary: Reupload guide identity documents
+ *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               government_document_id:
+ *                 type: integer
+ *                 example: 12
+ *               government_id:
+ *                 type: string
+ *                 format: binary
+ *               selfie_document_id:
+ *                 type: integer
+ *                 example: 15
+ *               selfie:
+ *                 type: string
+ *                 format: binary
+ *               address_proof_document_id:
+ *                 type: integer
+ *                 example: 18
+ *               address_proof:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Documents reuploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Document(s) reuploaded successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       422:
+ *         description: Validation error
+ *       500:
+ *         description: Internal server error
+ */
+
+router.put("/identity/reupload",authenticateToken,reuploadGuideIdentityDocuments);
+/**
+ * @swagger
+ * /guide/license/reupload:
+ *   put:
+ *     summary: Reupload guide license document
+ *     description: Reupload an existing license document by providing its document ID, license type and new file. Verification status will be reset to pending.
+ *     tags: [Guide]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - license_document_id
+ *               - license_type
+ *               - license_file
+ *             properties:
+ *               license_document_id:
+ *                 type: integer
+ *                 example: 25
+ *                 description: Existing license document ID
+ *               license_type:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Type of the license (must match existing record)
+ *               license_file:
+ *                 type: string
+ *                 format: binary
+ *                 description: New license document file
+ *     responses:
+ *       200:
+ *         description: License document reuploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: License document reuploaded successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       422:
+ *         description: Validation error
+ *       404:
+ *         description: Document not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.put("/license/reupload",authenticateToken,reuploadGuideLicense);
 /**
  * @swagger
  * /guide/my-profile:
