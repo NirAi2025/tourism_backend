@@ -13,12 +13,12 @@ import {
   GuidePublicProfile,
   GuideLanguage,
   GuideCertification,
+  GuideVerification
 } from "../../models/index.js";
 import { StatusCodes } from "http-status-codes";
 import sequelize from "../../config/database.js";
 import ApiError from "../../utils/ApiError.js";
 import { withFileUrl } from "../../config/fileUploadPath.js";
-import GuideVerification from "../../models/guideVerification.model.js";
 
 export const getAllUserService = async ({
   type,
