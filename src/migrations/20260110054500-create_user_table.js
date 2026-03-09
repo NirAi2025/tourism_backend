@@ -94,7 +94,11 @@ export async function up(queryInterface, Sequelize) {
       defaultValue: false,
       comment: '1: verified, 0: not verified, 2: pending',
     },
-
+    selected_city_id: {
+      type: Sequelize.BIGINT,
+      allowNull: true,
+      defaultValue: null,
+    },
     created_at: {
       type: Sequelize.DATE,
       allowNull: false,

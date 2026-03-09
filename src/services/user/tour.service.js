@@ -3,7 +3,9 @@ import ApiError from "../../utils/ApiError.js";
 import sequelize from "../../config/database.js";
 import { 
   Tour, 
+  TourMedia,
   User, 
+  GuidePublicProfile,
   Wishlist, 
   TourAvailability, 
   TourPrice, 
@@ -102,7 +104,6 @@ export const myWishlistedToursService = async (userId) => {
     data: { tours },
   };
 };
-
 export const getAllToursService = async ({
   cityId,
   guideId,
@@ -165,9 +166,6 @@ export const getAllToursService = async ({
     },
   };
 };
-
-
-
 export const tourAvailabilityAndPriceService = async ({
   tour_id,
   month = null,
@@ -252,4 +250,62 @@ export const tourAvailabilityAndPriceService = async ({
     },
   };
 };
+export const toursBySelectedCityService = async (city_id) => {
 
+  const tours = await Tour.findAll({
+    where: { city_id },
+    attributes: ["id", "title"],
+    include: [
+      {
+        model: TourMedia,
+        where: { type: "cover" },
+        required: false,
+        attributes: ["id", "media"],
+      },
+      {
+        model: User,
+        attributes: ["id", "name"],
+        include: [
+          {
+            model: GuidePublicProfile,
+            attributes: ["profile_photo"],
+          },
+        ],
+      },
+    ],
+    limit: 13,
+    order: [["id", "DESC"]],
+  });
+
+  const updatedTours = tours.map((tour) => {
+    const tourJson = tour.toJSON();
+
+    // Extract cover image
+    if (tourJson.tour_medias && tourJson.tour_medias.length > 0) {
+      const cover = tourJson.tour_medias[0];
+
+      tourJson.cover_image = cover.media
+        ? withFileUrl(cover.media, "tour")
+        : null;
+    } else {
+      tourJson.cover_image = null;
+    }
+
+    // Remove raw media array
+    delete tourJson.tour_medias;
+
+    // Guide profile image
+    if (
+      tourJson.user &&
+      tourJson.user.guide_public_profile &&
+      tourJson.user.guide_public_profile.profile_photo
+    ) {
+      tourJson.user.guide_public_profile.profile_photo = withFileUrl(
+        tourJson.user.guide_public_profile.profile_photo,
+        "profile"
+      );
+    }
+    return tourJson;
+  });
+  return updatedTours;
+};

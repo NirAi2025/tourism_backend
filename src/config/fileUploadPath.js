@@ -41,6 +41,10 @@ export const TOUR_IMG_UPLOAD_PATH = path.join(
   UPLOAD_BASE_PATH,
   "tour"
 );
+export const ICONIC_CITY_IMG_UPLOAD_PATH = path.join(
+  UPLOAD_BASE_PATH,
+  "iconic-city"
+);
 
 export const withFileUrl = (fileName, folder) => {
   if (!fileName) return null;

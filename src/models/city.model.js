@@ -1,4 +1,5 @@
 import { DataTypes } from "sequelize";
+import slugify from "slugify";
 import sequelize from "../config/database.js";
 
 const City = sequelize.define(
@@ -14,6 +15,10 @@ const City = sequelize.define(
     },
     slug: {
       type: DataTypes.STRING,
+    },
+    place_id: {
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     state_id: {
       type: DataTypes.BIGINT,
@@ -55,14 +60,35 @@ const City = sequelize.define(
       comment: "1: active, 0: inactive",
     },
     wikiDataId: {
-        type: DataTypes.STRING,
+      type: DataTypes.STRING,
+      field: 'wikiDataId',
+    },
+    is_iconic: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    iconic_image: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
     timestamps: true,
     underscored: true,
     paranoid: true,
-
+    hooks: {
+      beforeCreate: (city) => {
+        if (city.name) {
+          city.slug = slugify(city.name, { lower: true, strict: true });
+        }
+      },
+      beforeUpdate: (city) => {
+        if (city.name) {
+          city.slug = slugify(city.name, { lower: true, strict: true });
+        }
+      },
+    },
   }
 );
 

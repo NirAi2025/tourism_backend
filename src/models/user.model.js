@@ -73,16 +73,16 @@ const User = sequelize.define(
       defaultValue: 0,
       comment: "1: verified, 0: not verified/rejected, 2: pending",
     },
+    selected_city_id: {
+      type: DataTypes.BIGINT,
+      defaultValue: null,
+      
+    },
   },
   {
     timestamps: true,
     paranoid: true,
     underscored: true,
-    // defaultScope: {
-    //   attributes: {
-    //     exclude: ["createdAt", "updatedAt", "deletedAt"],
-    //   },
-    // },
     indexes: [
       {
         unique: true,

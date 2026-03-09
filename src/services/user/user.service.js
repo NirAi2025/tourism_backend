@@ -13,7 +13,7 @@ import {
   GuidePublicProfile,
   GuideLanguage,
   GuideCertification,
-  GuideVerification
+  GuideVerification,
 } from "../../models/index.js";
 import { StatusCodes } from "http-status-codes";
 import sequelize from "../../config/database.js";
@@ -339,3 +339,26 @@ export const verifyOverallGuideAccountService = async (payload = {}) => {
     throw error;
   }
 };
+
+export const updateSelectedCityService = async (user_id, city_id) => {
+
+  const city = await City.findByPk(city_id);
+  if (!city) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "City not found");
+  }
+  const isUser = await User.findByPk(user_id);
+  if (!isUser) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+  }
+  const isCityIdUpdated = await isUser.update({
+    selected_city_id: city_id,
+  });
+  if (!isCityIdUpdated) {
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      "Failed to update selected city"
+    );
+  }
+  return isCityIdUpdated;
+};
+
