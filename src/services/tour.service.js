@@ -1149,3 +1149,34 @@ export const updateTourStatusService = async (id) => {
     );
   }
 };
+
+export const availableTourCitiesService = async () => {
+  try {
+    const cities = await City.findAll({
+      attributes: ["id", "name", "slug"],
+      include: [
+        {
+          model: Tour,
+          attributes: [],
+          where: {
+            status: 1,
+          },
+          required: true, // makes INNER JOIN
+        },
+      ],
+      distinct: true,
+      order: [["name", "ASC"]],
+    });
+
+    return {
+      success: true,
+      message: "Available tour cities fetched successfully",
+      data: cities,
+    };
+  } catch (error) {
+    throw new ApiError(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong",
+    );
+  }
+};

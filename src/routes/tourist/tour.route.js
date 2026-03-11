@@ -1,7 +1,8 @@
 import express from "express";
 import {
     tourAvailability,
-    toursBySelectedCity
+    toursBySelectedCity,
+    topRatedGuides
 } from "../../controllers/tourist/tour.controller.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
 
@@ -43,16 +44,18 @@ router.get("/:tour_id/availability", authenticateToken, tourAvailability);
 
 /**
  * @swagger
- * /tourist/tours/tours-by-city/{city_id}:
+ * /tourist/tours/tours-by-city:
  *   get:
- *     summary: Get tours by selected city
+ *     summary: Get tours (optionally filtered by city)
  *     tags: [Tourist Tour]
+ *     security: []
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: city_id
- *         required: true
+ *         required: false
  *         schema:
  *           type: integer
+ *         description: Optional city id to filter tours
  *     responses:
  *       200:
  *         description: Tours fetched successfully
@@ -60,9 +63,31 @@ router.get("/:tour_id/availability", authenticateToken, tourAvailability);
  *           application/json:
  *             schema:
  *               type: object
- *       404:
- *         description: City not found
  */
-router.get("/tours-by-city/:city_id", toursBySelectedCity);
+router.get("/tours-by-city", toursBySelectedCity);
+
+/**
+ * @swagger
+ * /tourist/tours/top-rated-guides:
+ *   get:
+ *     summary: Get top-rated guides
+ *     tags: [Tourist Tour]
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: city_id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Optional city id to filter guides by city
+ *     responses:
+ *       200:
+ *         description: Guides fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
+router.get("/top-rated-guides", topRatedGuides);
 
 export default router;

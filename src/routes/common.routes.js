@@ -10,6 +10,7 @@ import {
   changeCityIconicStatus,
   updateCityIconicImage,
   iconicDestinationsWorldwide,
+  availableTourCities,
   addCity
 } from "../controllers/common.controller.js";
 
@@ -236,6 +237,19 @@ router.post("/add-city", addCity);
  *       500: { description: Server error }
  */
 router.get("/iconic-destinations-worldwide", iconicDestinationsWorldwide);
+
+/**
+ * @swagger
+ * /available-tour-cities:
+ *   get:
+ *     summary: Get available tour cities
+ *     tags: [Common]
+ *     security: []
+ *     responses:
+ *       200: { description: Available tour cities list }
+ *       500: { description: Server error }
+ */
+router.get("/available-tour-cities", availableTourCities);
 
 
 

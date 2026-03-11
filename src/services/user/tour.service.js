@@ -10,7 +10,10 @@ import {
   TourAvailability, 
   TourPrice, 
   TourTicket, 
-  City
+  City,
+  TourCategory,
+  Role,
+  Profile
 } from "../../models/index.js";
 import { withFileUrl } from "../../config/fileUploadPath.js";
 import { Op } from "sequelize";
@@ -253,8 +256,11 @@ export const tourAvailabilityAndPriceService = async ({
 export const toursBySelectedCityService = async (city_id) => {
 
   const tours = await Tour.findAll({
-    where: { city_id },
-    attributes: ["id", "title"],
+    where: {
+      ...(city_id && { city_id }),
+      status: 1
+    },
+    attributes: ["id", "title", "slug", "duration", "duration_type"],
     include: [
       {
         model: TourMedia,
@@ -272,6 +278,18 @@ export const toursBySelectedCityService = async (city_id) => {
           },
         ],
       },
+      {
+        model: TourCategory,
+        attributes: ["id", "name"],
+      },
+      {
+        model: TourPrice,
+        attributes: ["price", "currency"],
+      },
+      {
+        model: TourTicket,
+        attributes: ["adult_price", "child_price", "currency"],
+      }
     ],
     limit: 13,
     order: [["id", "DESC"]],
@@ -279,7 +297,9 @@ export const toursBySelectedCityService = async (city_id) => {
 
   const updatedTours = tours.map((tour) => {
     const tourJson = tour.toJSON();
-
+    tourJson.is_wishlisted = false;
+    tourJson.overall_rating = 4.5; // Placeholder, replace with actual rating logic
+    tourJson.total_reviews = 1500; // Placeholder, replace with actual review count logic
     // Extract cover image
     if (tourJson.tour_medias && tourJson.tour_medias.length > 0) {
       const cover = tourJson.tour_medias[0];
@@ -308,4 +328,61 @@ export const toursBySelectedCityService = async (city_id) => {
     return tourJson;
   });
   return updatedTours;
+};
+
+export const topRatedGuidesService = async (city_id) => {
+  const guides = await User.findAll({
+    include: [
+      {
+        model: Role,
+        where: { slug: "guide" },
+        attributes: [],
+      },
+      {
+        model: GuidePublicProfile,
+        attributes: ["profile_photo","cover_photo","bio","social_media_url","google_review_url"],
+      },
+      {
+        model: Profile,
+        where: { ...(city_id && { base_city_id: city_id }) },
+        required: city_id ? true : false,
+      },
+      {
+        model: Tour,
+        attributes: ["id", "title", "slug"],
+      }
+    ],
+    attributes: {
+      exclude: ["password", "fcm_token"],
+    },
+    order: [["id", "DESC"]],
+    limit: 10
+  });
+  const updatedGuides = guides.map((guide) => {
+    const guideJson = guide.toJSON();
+    guideJson.overall_rating = 4.5; // Placeholder, replace with actual rating logic
+    guideJson.total_reviews = 1500; // Placeholder, replace with actual review count logic
+    
+    // Guide profile image
+    if (
+      guideJson.guide_public_profile &&
+      guideJson.guide_public_profile.profile_photo
+    ) {
+      guideJson.guide_public_profile.profile_photo = withFileUrl(
+        guideJson.guide_public_profile.profile_photo,
+        "profile"
+      );
+    }
+    if (
+      guideJson.guide_public_profile &&
+      guideJson.guide_public_profile.cover_photo
+    ) {
+      guideJson.guide_public_profile.cover_photo = withFileUrl(
+        guideJson.guide_public_profile.cover_photo,
+        "profile"
+      );
+    }
+    return guideJson;
+  });
+  return updatedGuides;
 };

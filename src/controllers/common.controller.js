@@ -12,6 +12,7 @@ import {
     languagesService,
     iconicDestinationsService
 } from "../services/common.service.js";
+import { availableTourCitiesService } from "../services/tour.service.js";
 import { tourCategoriesService } from "../services/tour.service.js";
 import { ICONIC_CITY_IMG_UPLOAD_PATH } from "../config/fileUploadPath.js";
 import { fileUploaderSingle } from "../utils/fileUpload.js";
@@ -247,6 +248,25 @@ export const iconicDestinationsWorldwide = async (req, res) => {
       success: true,
       message: "Iconic destinations fetched successfully",
       data,
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || constants.INTERNAL_SERVER_ERROR,
+    });
+  }
+}
+
+export const availableTourCities = async (req, res) => {
+  try {
+    const data = await availableTourCitiesService();
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: data?.message || "Available tour cities fetched successfully",
+      data: data?.data || [],
     });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;

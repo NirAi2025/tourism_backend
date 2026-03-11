@@ -51,6 +51,8 @@ import Wishlist from "./wishlist.model.js";
 |--------------------------------------------------------------------------
 */
 
+User.hasMany(Tour, { foreignKey: "guide_id" });
+Tour.belongsTo(User, { foreignKey: "guide_id" });
 User.belongsToMany(Role, {through: UserRole, foreignKey: "user_id", otherKey: "role_id" });
 Role.belongsToMany(User, {through: UserRole, foreignKey: "role_id", otherKey: "user_id" });
 
@@ -65,6 +67,7 @@ City.belongsTo(State, { foreignKey: "state_id" });
 
 Country.hasMany(City, { foreignKey: "country_id" });
 City.belongsTo(Country, { foreignKey: "country_id" });
+City.hasMany(Tour, { foreignKey: "city_id" });
 
 BlogType.hasMany(Blog, { foreignKey: "blog_type_id" });
 Blog.belongsTo(BlogType, { foreignKey: "blog_type_id" });
