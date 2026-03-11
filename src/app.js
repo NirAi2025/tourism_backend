@@ -21,7 +21,8 @@ const allowedOrigins = [
   'https://tourguidetrack.in',      // main site without www
   'https://admin.tourguidetrack.in', // admin panel
   'http://localhost:5173',
-  'http://localhost:5174'
+  'http://localhost:5174',
+  'http://localhost:3000'
 ];
 
 app.use(cors({
