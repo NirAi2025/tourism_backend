@@ -14,8 +14,7 @@ const router = express.Router();
  *   get:
  *     summary: Get tour availability and price
  *     tags: [Tourist Tour]
- *     security:
- *       - bearerAuth: []
+ *     security: []
  *     parameters:
  *       - in: path
  *         name: tour_id
