@@ -95,7 +95,7 @@ export const getCitiesByCountryService = async ({
     limit: pageSize,
     offset,
     distinct: true,
-    order: [['created_at', 'DESC']],
+    order: [['name', 'ASC']],
   });
   const updatedRows = rows.map((city) => {
     const cityJson = city.toJSON();
