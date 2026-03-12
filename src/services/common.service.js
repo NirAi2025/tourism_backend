@@ -170,6 +170,9 @@ export const addCityService = async (payload = {}) => {
       latitude = geoRes?.latitude;
       longitude = geoRes?.longitude;
     }
+    if(!placeId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid city name");
+    }
     // Create city
     const city = await City.create({
       name,
