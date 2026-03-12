@@ -9,7 +9,6 @@ import {
     State,
     Language
 } from "../models/index.js";
-import { ICONIC_CITY_IMG_UPLOAD_PATH } from "../config/fileUploadPath.js";
 import { withFileUrl } from "../config/fileUploadPath.js";
 
 export const countryCurrencyService = async () => {
