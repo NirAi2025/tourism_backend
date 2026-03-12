@@ -10,6 +10,7 @@ import {
     Language
 } from "../models/index.js";
 import { ICONIC_CITY_IMG_UPLOAD_PATH } from "../config/fileUploadPath.js";
+import { withFileUrl } from "../config/fileUploadPath.js";
 
 export const countryCurrencyService = async () => {
   const currencies = await Country.findAll({
@@ -102,7 +103,10 @@ export const getCitiesByCountryService = async ({
     const cityJson = city.toJSON();
 
     if (cityJson.iconic_image) {
-      cityJson.iconic_image = `${ICONIC_CITY_IMG_UPLOAD_PATH}/${cityJson.iconic_image}`;
+      cityJson.iconic_image = withFileUrl(
+        cityJson.iconic_image,
+        "iconic-city"
+      );
     }
 
     return cityJson;
