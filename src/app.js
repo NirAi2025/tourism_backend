@@ -22,7 +22,7 @@ const allowedOrigins = [
   'https://admin.tourguidetrack.in', // admin panel
   'http://localhost:5173',
   'http://localhost:5174',
-  'http://localhost:3000'
+  'http://localhost:3001'
 ];
 
 app.use(cors({
