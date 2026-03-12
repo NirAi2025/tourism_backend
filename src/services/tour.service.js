@@ -23,6 +23,9 @@ import {
   State,
   City,
   Language,
+  Profile,
+  User,
+  GuidePublicProfile,
 } from "../models/index.js";
 import { withFileUrl } from "../config/fileUploadPath.js";
 
@@ -934,19 +937,22 @@ export const createTourStepElevenService = async (payload = {}) => {
   }
 };
 
-export const myTourProductsService = async ({
+export const tourProductsService = async ({
   user_id,
   page = 1,
   limit = 10,
 } = {}) => {
   try {
-    console.log(user_id);
     const pageNumber = Math.max(parseInt(page, 10), 1);
     const pageSize = Math.min(parseInt(limit, 10), 50);
     const offset = (pageNumber - 1) * pageSize;
+    let where = {};
 
+    if (user_id) {
+      where.guide_id = user_id;
+    }
     const { rows, count } = await Tour.findAndCountAll({
-      where: { guide_id: user_id },
+      where,
       limit: pageSize,
       offset,
       distinct: true,
@@ -972,6 +978,31 @@ export const myTourProductsService = async ({
           attributes: ["id", "name"],
         },
         {
+          model: User,
+          attributes: ["id", "name"],
+          include: [
+            {
+              model: GuidePublicProfile,
+              attributes: ["profile_photo", "cover_photo", "bio"],
+            },
+            {
+              model: Profile,
+              include: [
+                {
+                  model: City,
+                  as: "base_city",
+                  attributes: ["id", "name"],
+                },
+                {
+                  model: Country,
+                  as: "tour_country",
+                  attributes: ["id", "name"],
+                }
+              ],
+            }
+          ],
+        },
+        {
           model: TourMedia,
           as: "tour_medias",
           where: { type: "cover" },
@@ -994,7 +1025,10 @@ export const myTourProductsService = async ({
           url: media.media ? withFileUrl(media.media, "tour") : media.url,
         };
       }
-
+      if(tourJson.user && tourJson.user.guide_public_profile) {
+        tourJson.user.guide_public_profile.profile_photo = tourJson.user.guide_public_profile.profile_photo ? withFileUrl(tourJson.user.guide_public_profile.profile_photo, "profile") : null;
+        tourJson.user.guide_public_profile.cover_photo = tourJson.user.guide_public_profile.cover_photo ? withFileUrl(tourJson.user.guide_public_profile.cover_photo, "profile") : null;
+      }
       delete tourJson.tour_medias;
 
       return {
@@ -1019,7 +1053,7 @@ export const myTourProductsService = async ({
   }
 };
 
-export const myTourProductDetailsService = async (id) => {
+export const tourProductDetailsService = async (id) => {
   try {
     const tour = await Tour.findByPk(id, {
       include: [
@@ -1039,6 +1073,31 @@ export const myTourProductDetailsService = async (id) => {
         {
           model: City,
           attributes: ["id", "name"],
+        },
+        {
+          model: User,
+          attributes: ["id", "name"],
+          include: [
+            {
+              model: GuidePublicProfile,
+              attributes: ["profile_photo", "cover_photo", "bio"],
+            },
+            {
+              model: Profile,
+              include: [
+                {
+                  model: City,
+                  as: "base_city",
+                  attributes: ["id", "name"],
+                },
+                {
+                  model: Country,
+                  as: "tour_country",
+                  attributes: ["id", "name"],
+                }
+              ],
+            }
+          ],
         },
         // ---------- hasOne (NO separate) ----------
         { model: Itinerary },
@@ -1112,10 +1171,15 @@ export const myTourProductDetailsService = async (id) => {
       if (item.type == "video" && !media.video) {
         media.video = item.url;
       }
+      
     });
-
+    if(tour.user && tour.user.guide_public_profile) {
+        tour.user.guide_public_profile.profile_photo = tour.user.guide_public_profile.profile_photo ? withFileUrl(tour.user.guide_public_profile.profile_photo, "profile") : null;
+        tour.user.guide_public_profile.cover_photo = tour.user.guide_public_profile.cover_photo ? withFileUrl(tour.user.guide_public_profile.cover_photo, "profile") : null;
+      }
     return {
       success: true,
+      message: "Tour details fetched successfully",
       data: {
         ...tour.toJSON(),
         tour_medias: media,

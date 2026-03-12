@@ -13,8 +13,8 @@ import {
   createTourStepNineService,
   createTourStepTenService,
   createTourStepElevenService,
-  myTourProductsService,
-  myTourProductDetailsService,
+  tourProductsService,
+  tourProductDetailsService,
   updateTourStatusService
 } from "../../services/tour.service.js";
 import {
@@ -300,7 +300,7 @@ export const myTourProducts = async (req, res) => {
   try {
     const user_id = req.user.id;
     const { page, limit } = req.query;
-    const result = await myTourProductsService({
+    const result = await tourProductsService({
       user_id,
       page,
       limit,
@@ -324,7 +324,7 @@ export const myTourProducts = async (req, res) => {
 export const tourDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await myTourProductDetailsService(id);
+    const result = await tourProductDetailsService(id);
 
     return res.status(StatusCodes.OK).json({
       success: true,

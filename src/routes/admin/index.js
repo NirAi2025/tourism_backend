@@ -5,6 +5,7 @@ import authorizeRoles from "../../middlewares/adminRole.middleware.js";
 import userRoutes from "./user.routes.js";
 import cmsRoutes from "./cms.routes.js";
 import blogRoutes from "./blog.routes.js";
+import tourRoutes from "./tour.routes.js";
 
 const router = Router();
 
@@ -13,6 +14,7 @@ router.use(authenticateToken, authorizeRoles("super-admin", "admin"));
 router.use("/", userRoutes);
 router.use("/", cmsRoutes);
 router.use("/", blogRoutes);
+router.use("/", tourRoutes);
 
 
 export default router;

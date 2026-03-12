@@ -30,7 +30,6 @@ export const getAllCountriesService = async () => {
 
   return countries;
 }
-
 export const getStatesByCountryService = async (countryId) => {
   const states = await State.findAll({
     where: { country_id: countryId },
@@ -43,7 +42,6 @@ export const getStatesByCountryService = async (countryId) => {
   }
     return states;
 };
-
 export const getCitiesByStateService = async (stateId) => {
   const cities = await City.findAll({
     where: { state_id: stateId },
@@ -57,7 +55,6 @@ export const getCitiesByStateService = async (stateId) => {
 
   return cities;
 };
-
 export const languagesService = async () => {
   const languages = await Language.findAll({
     attributes: ['id', 'name', 'code'],
@@ -196,7 +193,6 @@ export const addCityService = async (payload = {}) => {
     };
   }
 };
-
 export const iconicDestinationsService = async () => {
   const iconicCities = await City.findAll({
     where: {
