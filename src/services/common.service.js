@@ -9,7 +9,6 @@ import {
     State,
     Language
 } from "../models/index.js";
-import { withFileUrl } from "../config/fileUploadPath.js";
 
 export const countryCurrencyService = async () => {
   const currencies = await Country.findAll({
