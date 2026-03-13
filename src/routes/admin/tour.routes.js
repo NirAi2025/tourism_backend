@@ -1,7 +1,8 @@
 import express from 'express';
 import {
     allTours,
-    tourDetails
+    tourDetails,
+    verifyTourProduct
 } from '../../controllers/admin/tour.controller.js';
 
 const router = express.Router();
@@ -57,6 +58,41 @@ router.get('/tours', allTours);
  *         description: Tour details fetched successfully
  */
 router.get('/tours/:id', tourDetails);
+
+/**
+ * @swagger
+ * /admin/tours/verify:
+ *   post:
+ *     summary: Verify a tour product
+ *     tags: [Tours]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tour_id
+ *               - verification_status
+ *             properties:
+ *               tour_id:
+ *                 type: integer
+ *                 example: 10
+ *               verification_status:
+ *                 type: integer
+ *                 enum: [1, 2]
+ *                 example: 1
+ *               remarks:
+ *                 type: string
+ *                 example: Tour verified successfully
+ *     responses:
+ *       200:
+ *         description: Tour verification status updated successfully
+ */
+
+router.post('/tours/verify', verifyTourProduct);
 
 export default router;
 

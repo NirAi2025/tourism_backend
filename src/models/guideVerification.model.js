@@ -13,6 +13,13 @@ const GuideVerification = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    tour_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: { model: "tours", key: "id" },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+    },
     verified_by: {
       type: DataTypes.BIGINT,
       allowNull: true,
@@ -35,7 +42,7 @@ const GuideVerification = sequelize.define(
   {
     timestamps: true,
     underscored: true,
-  }
+  },
 );
 
 export default GuideVerification;

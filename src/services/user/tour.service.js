@@ -117,6 +117,8 @@ export const getAllToursService = async ({
 
   if (cityId) where.city_id = cityId;
   if (guideId) where.guide_id = guideId;
+  where.status = 1;
+  where.is_verified = 1;
 
   const pageNumber = Math.max(parseInt(page, 10), 1);
   const pageSize = Math.min(parseInt(limit, 10), 50);
@@ -258,7 +260,8 @@ export const toursBySelectedCityService = async (city_id) => {
   const tours = await Tour.findAll({
     where: {
       ...(city_id && { city_id }),
-      status: 1
+      status: 1,
+      is_verified: 1,
     },
     attributes: ["id", "title", "slug", "duration", "duration_type"],
     include: [
@@ -332,6 +335,9 @@ export const toursBySelectedCityService = async (city_id) => {
 
 export const topRatedGuidesService = async (city_id) => {
   const guides = await User.findAll({
+    where: {
+      is_verified: 1,
+    },
     include: [
       {
         model: Role,

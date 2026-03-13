@@ -2,7 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import constants from "../../config/constants.js";
 import {
     tourProductsService,
-    tourProductDetailsService
+    tourProductDetailsService,
+    verifyTourProductService
 } from "../../services/tour.service.js";
 import ApiError from "../../utils/ApiError.js";
 
@@ -41,6 +42,27 @@ export const tourDetails = async (req, res) => {
       success: true,
       message: result.message,
       data: result.data || null,
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+  }
+};
+export const verifyTourProduct = async (req, res) => {
+  try {
+    const payload = {
+      ...req.body,
+      user_id: req.user?.id, 
+    };
+    const result = await verifyTourProductService(payload);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
     });
   } catch (error) {
     return res

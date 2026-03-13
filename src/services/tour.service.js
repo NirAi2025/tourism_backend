@@ -26,6 +26,7 @@ import {
   Profile,
   User,
   GuidePublicProfile,
+  GuideVerification,
 } from "../models/index.js";
 import { withFileUrl } from "../config/fileUploadPath.js";
 
@@ -106,6 +107,7 @@ export const createTourStepOneService = async (payload = {}) => {
         guide_id,
         place,
         completed_steps: 1,
+        status: 2
       },
       { transaction },
     );
@@ -849,6 +851,7 @@ export const createTourStepTenService = async (payload = {}) => {
         what_to_bring,
         dress_code,
         important_notes,
+        status: 1,
         completed_steps: 10, // adjust if needed
       },
       {
@@ -913,6 +916,7 @@ export const createTourStepElevenService = async (payload = {}) => {
       {
         seo_title,
         seo_description,
+        status: 1,
         completed_steps: 11,
       },
       {
@@ -1241,6 +1245,56 @@ export const availableTourCitiesService = async () => {
     throw new ApiError(
       error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
       error.message || "Something went wrong",
+    );
+  }
+};
+export const verifyTourProductService = async (payload = {}) => {
+  const { tour_id, verification_status, remarks, user_id } = payload;
+
+  if (![1, 2].includes(verification_status)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid verification status");
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const tour = await Tour.findByPk(tour_id, { transaction });
+
+    if (!tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
+    }
+
+    await tour.update(
+      {
+        is_verified: verification_status,
+        comment: remarks,
+      },
+      { transaction }
+    );
+
+    await GuideVerification.create(
+      {
+        tour_id,
+        verified_by: user_id,
+        verification_date: new Date(),
+        status: verification_status,
+        remarks,
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
+
+    return {
+      success: true,
+      message: "Tour verification status updated successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+
+    throw new ApiError(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong"
     );
   }
 };

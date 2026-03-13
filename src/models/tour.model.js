@@ -189,6 +189,17 @@ const Tour = sequelize.define(
       defaultValue: 0,
       comment: "0=Draft, 1=Approved, 2=Rejected",
     },
+    is_verified: {
+      type: DataTypes.TINYINT,
+      allowNull: true,
+      defaultValue: 0,
+      comment: '0: pending, 1: approved, 2: rejected',
+    },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Admin comments for verification",
+    },
     completed_steps: {
       type: DataTypes.INTEGER,
       allowNull: true,
