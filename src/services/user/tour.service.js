@@ -1,6 +1,5 @@
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../../utils/ApiError.js";
-import sequelize from "../../config/database.js";
 import { 
   Tour, 
   TourMedia,
@@ -13,7 +12,20 @@ import {
   City,
   TourCategory,
   Role,
-  Profile
+  Profile,
+  Country,
+  State,
+  Itinerary,
+  TourPolicy,
+  TourSafety,
+  TourInclusionExclusion,
+  TourStop,
+  TourSearchTag,
+  TourLanguage,
+  Language,
+  TourOperatingDay,
+  TourTagMap,
+  TourTag
 } from "../../models/index.js";
 import { withFileUrl } from "../../config/fileUploadPath.js";
 import { Op } from "sequelize";
@@ -332,7 +344,141 @@ export const toursBySelectedCityService = async (city_id) => {
   });
   return updatedTours;
 };
+export const tourDetailsService = async (id) => {
+  try {
+    const tour = await Tour.findByPk(id, {
+      include: [
+        {
+          model: TourCategory,
+          attributes: ["id", "name"],
+        },
+        {
+          model: Country,
+          attributes: ["id", "name"],
+        },
+        {
+          model: State,
+          attributes: ["id", "name"],
+        },
+        {
+          model: City,
+          attributes: ["id", "name"],
+        },
+        {
+          model: User,
+          attributes: ["id", "name"],
+          include: [
+            {
+              model: GuidePublicProfile,
+              attributes: ["profile_photo", "cover_photo", "bio"],
+            },
+            {
+              model: Profile,
+              include: [
+                {
+                  model: City,
+                  as: "base_city",
+                  attributes: ["id", "name"],
+                },
+                {
+                  model: Country,
+                  as: "tour_country",
+                  attributes: ["id", "name"],
+                }
+              ],
+            }
+          ],
+        },
+        { model: Itinerary },
+        { model: TourPrice },
+        { model: TourTicket },
+        { model: TourPolicy },
+        { model: TourSafety },
+        { model: TourInclusionExclusion },
+        {
+          model: TourStop,
+          separate: true,
+        },
+        {
+          model: TourSearchTag,
+          separate: true,
+        },
+        {
+          model: TourLanguage,
+          separate: true,
+          include: [{ model: Language }],
+        },
+        {
+          model: TourMedia,
+          as: "tour_medias",
+          separate: true,
+        },
+        {
+          model: TourOperatingDay,
+          separate: true,
+        },
+        {
+          model: TourAvailability,
+          separate: true,
+          order: [["available_date", "ASC"]],
+        },
+        {
+          model: TourTagMap,
+          separate: true,
+          include: [{ model: TourTag }],
+        },
+      ],
+    });
 
+    if (!tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Tour not found");
+    }
+
+    const media = {
+      cover: null,
+      gallery: [],
+      video: null, // single video
+      image_rights_confirmation: tour.image_rights_confirmation,
+    };
+
+    tour.tour_medias?.forEach((item) => {
+      // Single Cover
+      if (item.type == "cover" && !media.cover) {
+        media.cover = item.media ? withFileUrl(item.media, "tour") : item.url;
+      }
+
+      // Multiple Gallery
+      if (item.type == "gallery") {
+        media.gallery.push(
+          item.media ? withFileUrl(item.media, "tour") : item.url,
+        );
+      }
+
+      // Single Video
+      if (item.type == "video" && !media.video) {
+        media.video = item.url;
+      }
+      
+    });
+    if(tour.user && tour.user.guide_public_profile) {
+        tour.user.guide_public_profile.profile_photo = tour.user.guide_public_profile.profile_photo ? withFileUrl(tour.user.guide_public_profile.profile_photo, "profile") : null;
+        tour.user.guide_public_profile.cover_photo = tour.user.guide_public_profile.cover_photo ? withFileUrl(tour.user.guide_public_profile.cover_photo, "profile") : null;
+      }
+    return {
+      success: true,
+      message: "Tour details fetched successfully",
+      data: {
+        ...tour.toJSON(),
+        tour_medias: media,
+      },
+    };
+  } catch (error) {
+    throw new ApiError(
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong",
+    );
+  }
+};
 export const topRatedGuidesService = async (city_id) => {
   const guides = await User.findAll({
     where: {
@@ -391,4 +537,8 @@ export const topRatedGuidesService = async (city_id) => {
     return guideJson;
   });
   return updatedGuides;
+};
+
+export const guideDetailsService = async (guideId) => {
+
 };

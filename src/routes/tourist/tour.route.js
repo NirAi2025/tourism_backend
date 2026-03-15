@@ -2,7 +2,9 @@ import express from "express";
 import {
     tourAvailability,
     toursBySelectedCity,
-    topRatedGuides
+    tourDetails,
+    topRatedGuides,
+    guideDetails
 } from "../../controllers/tourist/tour.controller.js";
 import { authenticateToken } from "../../middlewares/generalAuth.middleware.js";
 
@@ -67,6 +69,29 @@ router.get("/tours-by-city", toursBySelectedCity);
 
 /**
  * @swagger
+ * /tourist/tours/tour-details/{tour_id}:
+ *   get:
+ *     summary: Get tour details by id
+ *     tags: [Tourist Tour]
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: tour_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Tour details fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
+router.get("/tour-details/:tour_id", tourDetails);
+
+/**
+ * @swagger
  * /tourist/tours/top-rated-guides:
  *   get:
  *     summary: Get top-rated guides
@@ -88,5 +113,28 @@ router.get("/tours-by-city", toursBySelectedCity);
  *               type: object
  */
 router.get("/top-rated-guides", topRatedGuides);
+
+/**
+ * @swagger
+ * /tourist/tours/guide-details/{guide_id}:
+ *   get:
+ *     summary: Get guide details by id
+ *     tags: [Tourist Tour]
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: guide_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Guide details fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
+router.get("/guide-details/:guide_id", guideDetails);
 
 export default router;

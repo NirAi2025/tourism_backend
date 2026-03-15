@@ -1,31 +1,28 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-const WishList = sequelize.define(
-  "wishlists",
+const WishlistTour = sequelize.define(
+  "wishlist_tours",
   {
     id: {
       type: DataTypes.BIGINT,
       autoIncrement: true,
       primaryKey: true,
     },
-    user_id: {
+    wishlist_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      references: { model: "users", key: "id" },
+      references: { model: "wishlists", key: "id" },
       onDelete: "CASCADE",
-      comment: "FK to users table",
+      comment: "FK to wishlists table",
     },
-    name: {
-      type: DataTypes.STRING(500),
+    tour_id: {
+      type: DataTypes.BIGINT,
       allowNull: false,
-      comment: "Name of the wishlist",
+      references: { model: "tours", key: "id" },
+      onDelete: "CASCADE",
+      comment: "FK to tours table",
     },
-    status: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-    }
   },
   {
     timestamps: true,
@@ -33,4 +30,4 @@ const WishList = sequelize.define(
     underscored: true,
   },
 );
-export default WishList;
+export default WishlistTour;

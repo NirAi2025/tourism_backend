@@ -2,11 +2,17 @@
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('wishlists', {
+  await queryInterface.createTable('tour_price_adjustments', {
     id: {
       type: Sequelize.BIGINT,
       autoIncrement: true,
       primaryKey: true,
+    },
+    guide_id: {
+      type: Sequelize.BIGINT,
+      allowNull: true,
+      references: { model: 'users', key: 'id' },
+      onDelete: 'CASCADE',
     },
     tour_id: {
       type: Sequelize.BIGINT,
@@ -14,11 +20,17 @@ export async function up(queryInterface, Sequelize) {
       references: { model: 'tours', key: 'id' },
       onDelete: 'CASCADE',
     },
-    user_id: {
-      type: Sequelize.BIGINT,
+    adjustment_type: {
+      type: Sequelize.ENUM('PERCENTAGE', 'FLAT'),
+      allowNull: false,
+    },
+    amount: {
+      type: Sequelize.DECIMAL(10, 2),
+      allowNull: false,
+    },
+    reason: {
+      type: Sequelize.STRING(500),
       allowNull: true,
-      references: { model: 'users', key: 'id' },
-      onDelete: 'CASCADE',
     },
     created_at: {
       type: Sequelize.DATE,
@@ -31,5 +43,5 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('wishlists');
+  await queryInterface.dropTable('tour_price_adjustments');
 }

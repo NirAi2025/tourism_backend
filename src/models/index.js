@@ -43,6 +43,7 @@ import TourTicket from "./tourTicket.model.js";
 import TourAvailability from "./tourAvailability.model.js";
 import TourInclusionExclusion from "./tourInclusionExclusion.model.js";
 import Wishlist from "./wishlist.model.js";
+import WishlistTour from "./wishlistTour.model.js";
 
 
 /*
@@ -183,6 +184,12 @@ Language.hasMany(TourLanguage, { foreignKey: "language_id" });
 
 Tour.belongsTo(User, { foreignKey: "guide_id"});
 
+Wishlist.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(Wishlist, { foreignKey: "user_id" });
+
+WishlistTour.belongsTo(Wishlist, { foreignKey: "wishlist_id" });
+Wishlist.hasMany(WishlistTour, { foreignKey: "wishlist_id" });
+
 
 export {
   sequelize,
@@ -229,5 +236,6 @@ export {
   TourTicket,
   TourAvailability,
   TourInclusionExclusion,
-  Wishlist
+  Wishlist,
+  WishlistTour
 };
