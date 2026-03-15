@@ -127,6 +127,7 @@ export const userDetailsByIdService = async (userId) => {
       {
         model: Tour,
         as: "tours",
+        required: false,
         where: { status: 1, is_verified: 1 },
         include: [
           {
